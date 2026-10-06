@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pink Slice &amp; Roll — пицца и суши</title>
+<meta name="description" content="Соберите свою пиццу и суши: выберите размер, тесто, ингредиенты, время доставки и способ оплаты.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF8F5;
+    --card: #FFFFFF;
+    --accent: #F4B6C2;
+    --primary: #E07A93;
+    --primary-hover: #C9637C;
+    --soft: #FCE8EC;
+    --text: #3D2C2E;
+    --muted-brand: #8A7477;
+    --muted: #7A6467;          /* чуть темнее #8A7477 — для мелкого текста по WCAG AA */
+    --success: #7BC4A4;
+    --error: #D9534F;
+    --error-text: #B23A36;     /* текст ошибок, проходит AA на белом */
+    --line: #F3DCE1;
+    --warn-bg: #FFF1D6;
+    --warn-text: #6B4A12;
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow: 0 8px 24px rgba(61, 44, 46, .08);
+    --shadow-hover: 0 10px 28px rgba(224, 122, 147, .22);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+  }
+  h1, h2, h3, h4 { font-family: 'Montserrat', system-ui, sans-serif; line-height: 1.2; margin: 0; }
+  h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 700; }
+  h2 { font-size: clamp(24px, 3.4vw, 34px); font-weight: 700; }
+  h3 { font-size: 18px; font-weight: 600; }
+  p { margin: 0; }
+  a { color: inherit; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 3px solid var(--primary-hover); outline-offset: 2px; }
+  .visually-hidden {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  [hidden] { display: none !important; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 768px) { .container { padding: 0 24px; } }
+  section { scroll-margin-top: 72px; }
+  .section { padding: 56px 0; }
+  .section--alt { background: var(--soft); }
+  .section__head { margin-bottom: 24px; }
+  .section__head p { color: var(--muted); margin-top: 8px; max-width: 640px; }
+  .eyebrow {
+    display: inline-block; font: 700 13px 'Montserrat', sans-serif; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--primary-hover); margin-bottom: 8px;
+  }
+
+  /* ---------- Header ---------- */
+  .header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 248, 245, .94);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header__inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
+  .logo {
+    display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
+    font: 700 18px 'Montserrat', sans-serif; color: var(--text); min-height: 44px; border-radius: 12px;
+  }
+  .logo__mark {
+    width: 38px; height: 38px; border-radius: 12px; background: var(--accent);
+    display: grid; place-items: center; font-size: 20px;
+  }
+  .logo__amp { color: var(--primary-hover); }
+  .nav { display: none; gap: 4px; }
+  .nav a {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: 12px;
+    text-decoration: none; font-weight: 700; transition: background .2s;
+  }
+  .nav a:hover { background: var(--soft); }
+  @media (min-width: 768px) { .nav { display: flex; } }
+  .cart-link {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px;
+    border-radius: 12px; background: var(--card); border: 1px solid var(--line);
+    text-decoration: none; font-weight: 700; transition: box-shadow .2s, border-color .2s;
+  }
+  .cart-link:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+  .badge {
+    min-width: 24px; height: 24px; padding: 0 7px; border-radius: 12px; background: var(--primary);
+    color: var(--text); font: 700 13px/24px 'Montserrat', sans-serif; text-align: center;
+  }
+  .bump { animation: bump .25s ease; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px; padding: 12px 22px; border-radius: 12px; border: 1px solid transparent;
+    font: 600 16px/1.2 'Montserrat', sans-serif; cursor: pointer; text-decoration: none;
+    transition: background .2s, color .2s, transform .15s, box-shadow .2s, border-color .2s;
+  }
+  .btn--primary { background: var(--primary); color: var(--text); }
+  .btn--primary:hover:not(:disabled) { background: var(--primary-hover); color: #fff; box-shadow: var(--shadow-hover); }
+  .btn--ghost { background: var(--card); color: var(--text); border-color: var(--line); }
+  .btn--ghost:hover:not(:disabled) { background: var(--soft); border-color: var(--accent); }
+  .btn--link {
+    background: none; min-height: 44px; padding: 8px 10px; color: var(--text);
+    text-decoration: underline; text-underline-offset: 3px; font-size: 14px;
+  }
+  .btn--link:hover { color: var(--primary-hover); }
+  .btn--block { width: 100%; }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 40px 0 56px; overflow: hidden; }
+  .hero__grid { display: grid; gap: 32px; align-items: center; }
+  @media (min-width: 900px) { .hero__grid { grid-template-columns: 1.1fr .9fr; } }
+  .hero__text p.lead { font-size: 18px; color: var(--muted); margin: 16px 0 24px; max-width: 520px; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero__chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; list-style: none; padding: 0; }
+  .hero__chips li {
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 14px; font-size: 14px; font-weight: 700;
+  }
+  .hero__art { position: relative; max-width: 440px; margin: 0 auto; width: 100%; aspect-ratio: 1.1; }
+  .hero__blob {
+    position: absolute; inset: 6% 4%; border-radius: 46% 54% 50% 50% / 52% 44% 56% 48%;
+    background: radial-gradient(circle at 30% 30%, #FFFFFF, var(--soft) 55%, var(--accent));
+  }
+  .hero__pizza { position: absolute; width: 70%; left: 2%; top: 4%; filter: drop-shadow(0 16px 24px rgba(61,44,46,.18)); }
+  .hero__sushi { position: absolute; width: 42%; right: 2%; bottom: 4%; filter: drop-shadow(0 12px 20px rgba(61,44,46,.2)); }
+
+  /* ---------- Presets ---------- */
+  .presets-title { font: 600 16px 'Montserrat', sans-serif; margin-bottom: 12px; }
+  .presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 32px; }
+  .preset {
+    display: flex; align-items: center; gap: 12px; text-align: left; padding: 14px 16px; min-height: 64px;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    font: inherit; color: inherit; cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s;
+  }
+  .preset:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .preset__icon {
+    width: 44px; height: 44px; border-radius: 12px; background: var(--soft);
+    display: grid; place-items: center; font-size: 24px; flex: none;
+  }
+  .preset__name { display: block; font: 700 15px 'Montserrat', sans-serif; }
+  .preset__meta { display: block; font-size: 14px; color: var(--muted); }
+
+  /* ---------- Builder ---------- */
+  .builder { display: grid; gap: 24px; }
+  @media (min-width: 768px) { .builder { grid-template-columns: minmax(0, 1fr) 300px; } }
+  @media (min-width: 1024px) { .builder { grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; } }
+  .builder__main { min-width: 0; }
+  @media (min-width: 768px) { .sticky { position: sticky; top: 88px; } }
+
+  .group { border: 0; padding: 0; margin: 0 0 28px; min-width: 0; }
+  .group__title { font: 600 18px 'Montserrat', sans-serif; padding: 0; margin-bottom: 12px; }
+  .group__head { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .group__head .group__title { margin: 0; }
+  .counter-pill {
+    font: 700 13px 'Montserrat', sans-serif; padding: 4px 10px; border-radius: 999px;
+    background: var(--card); border: 1px solid var(--line);
+  }
+
+  .options { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .options--chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { position: relative; display: block; cursor: pointer; }
+  .opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .opt__body {
+    display: flex; flex-direction: column; justify-content: center; gap: 2px; height: 100%;
+    min-height: 60px; padding: 10px 14px; background: var(--card);
+    border: 2px solid var(--line); border-radius: var(--radius-sm);
+    transition: border-color .2s, background .2s, box-shadow .2s;
+  }
+  .options--chips .opt__body { flex-direction: row; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; }
+  .opt:hover .opt__body { border-color: var(--accent); }
+  .opt input:checked + .opt__body { border-color: var(--primary); background: var(--soft); box-shadow: 0 4px 12px rgba(224,122,147,.15); }
+  .opt input:focus-visible + .opt__body { outline: 3px solid var(--primary-hover); outline-offset: 2px; }
+  .opt input:disabled { cursor: not-allowed; }
+  .opt input:disabled + .opt__body { opacity: .5; border-color: var(--line); background: #F7F1F0; }
+  .opt__icon { font-size: 20px; line-height: 1; }
+  .opt__title { font-weight: 700; }
+  .opt__meta { font-size: 14px; color: var(--muted); }
+  .options--chips .opt__meta::before { content: '· '; }
+
+  .cat { margin-bottom: 20px; }
+  .cat__title {
+    font: 700 13px 'Montserrat', sans-serif; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .ings { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .ing {
+    background: var(--card); border: 2px solid var(--line); border-radius: 14px; overflow: hidden;
+    transition: border-color .2s, box-shadow .2s, opacity .2s;
+  }
+  .ing:hover { border-color: var(--accent); }
+  .ing.is-on { border-color: var(--primary); box-shadow: 0 6px 16px rgba(224,122,147,.18); }
+  .ing.is-dim { opacity: .6; }
+  .ing.is-pop { animation: pop .25s ease; }
+  .ing__main {
+    display: flex; align-items: center; gap: 10px; width: 100%; min-height: 60px; padding: 10px 12px;
+    background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;
+  }
+  .ing__icon {
+    width: 40px; height: 40px; border-radius: 12px; background: var(--soft);
+    display: grid; place-items: center; font-size: 22px; flex: none; transition: background .2s;
+  }
+  .ing.is-on .ing__icon { background: var(--accent); }
+  .swatch { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(61,44,46,.15); }
+  .ing__text { min-width: 0; }
+  .ing__name { display: block; font-weight: 700; line-height: 1.2; }
+  .ing__price { display: block; font-size: 14px; color: var(--muted); }
+  .ing__check {
+    margin-left: auto; width: 24px; height: 24px; flex: none; border-radius: 50%;
+    border: 2px solid var(--line); display: grid; place-items: center;
+    font-size: 13px; font-weight: 700; color: transparent; transition: all .2s;
+  }
+  .ing.is-on .ing__check { background: var(--primary); border-color: var(--primary); color: var(--text); }
+  .ing__portion { display: flex; border-top: 1px solid var(--line); }
+  .ing:not(.is-on) .ing__portion { display: none; }
+  .ing__portion button {
+    flex: 1; min-height: 44px; border: 0; background: none; cursor: pointer;
+    font: 600 14px 'Montserrat', sans-serif; color: var(--muted); transition: background .2s, color .2s;
+  }
+  .ing__portion button + button { border-left: 1px solid var(--line); }
+  .ing__portion button[aria-pressed="true"] { background: var(--soft); color: var(--text); }
+
+  .notice {
+    display: none; margin-top: 12px; padding: 12px 14px; border-radius: var(--radius-sm);
+    background: var(--warn-bg); color: var(--warn-text); font-size: 15px;
+  }
+  .notice.is-visible { display: block; animation: fadeIn .2s ease; }
+
+  /* ---------- Summary card ---------- */
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .summary { padding: 20px; }
+  .edit-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin: -4px 0 12px; padding: 6px 6px 6px 12px; border-radius: 12px; background: var(--warn-bg);
+    color: var(--warn-text); font-size: 14px; font-weight: 700;
+  }
+  .edit-banner .btn--link { color: var(--warn-text); }
+  .preview { display: block; width: 100%; max-width: 260px; height: auto; margin: 0 auto; }
+  .preview-scale { transform-origin: 160px 160px; transition: transform .25s ease; }
+  .topping.is-new { animation: drop .25s ease both; transform-box: fill-box; transform-origin: center; }
+  .summary__caption { text-align: center; color: var(--muted); font-size: 14px; margin: 4px 0 12px; }
+  .summary__desc { font-size: 15px; margin-bottom: 16px; min-height: 3em; }
+  .summary__price {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    padding-top: 16px; margin-bottom: 16px; border-top: 1px dashed var(--line);
+  }
+  .summary__price strong { font: 700 28px 'Montserrat', sans-serif; display: inline-block; }
+  .summary__unit { font-size: 14px; color: var(--muted); }
+  .flash { animation: flash .25s ease; }
+  .qty-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .qty-row label { font-weight: 700; }
+  .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 12px; background: var(--card); overflow: hidden; }
+  .stepper button {
+    width: 44px; height: 44px; border: 0; background: none; cursor: pointer;
+    font-size: 20px; color: var(--text); transition: background .2s;
+  }
+  .stepper button:hover:not(:disabled) { background: var(--soft); }
+  .stepper button:disabled { opacity: .35; cursor: not-allowed; }
+  .stepper input, .stepper span {
+    width: 40px; border: 0; background: none; text-align: center; color: var(--text);
+    font: 700 16px 'Montserrat', sans-serif; -moz-appearance: textfield; appearance: textfield;
+  }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .hint { font-size: 14px; color: var(--muted); margin-top: 8px; text-align: center; }
+  .hint--warn { color: var(--warn-text); font-weight: 700; }
+
+  /* ---------- Cart ---------- */
+  .cart { display: grid; gap: 24px; align-items: start; }
+  @media (min-width: 1024px) { .cart { grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; } }
+  .cart-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .cart-item { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px 16px; padding: 16px; animation: fadeIn .2s ease; }
+  @media (min-width: 600px) { .cart-item { grid-template-columns: 56px minmax(0, 1fr) auto; } }
+  .cart-item__icon {
+    width: 48px; height: 48px; border-radius: 14px; background: var(--soft);
+    display: grid; place-items: center; font-size: 26px;
+  }
+  .cart-item__title { font: 700 16px 'Montserrat', sans-serif; margin-bottom: 4px; }
+  .cart-item__desc { color: var(--muted); font-size: 14px; }
+  .cart-item__actions { display: flex; gap: 4px; margin: 4px 0 0 -10px; }
+  .cart-item__right { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  @media (min-width: 600px) {
+    .cart-item__right { grid-column: auto; flex-direction: column; align-items: flex-end; justify-content: center; }
+  }
+  .cart-item__sum { font: 700 18px 'Montserrat', sans-serif; }
+  .cart-empty { text-align: center; padding: 40px 20px; }
+  .cart-empty__icon { font-size: 56px; line-height: 1; margin-bottom: 12px; }
+  .cart-empty p { color: var(--muted); margin: 8px 0 20px; }
+  .cart-empty__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+  .totals { padding: 20px; }
+  .totals h3 { margin-bottom: 16px; }
+  .totals__row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .totals__row--total {
+    font: 700 22px 'Montserrat', sans-serif; padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--line);
+  }
+  .progress { margin: 12px 0 16px; }
+  .progress__text { font-size: 14px; margin-bottom: 6px; }
+  .progress__bar { height: 10px; border-radius: 5px; background: var(--soft); overflow: hidden; }
+  .progress__fill { height: 100%; width: 0; border-radius: 5px; background: linear-gradient(90deg, var(--accent), var(--primary)); transition: width .25s ease; }
+  .progress.is-done .progress__fill { background: var(--success); }
+  .min-note { font-size: 14px; color: var(--muted); margin-top: 10px; text-align: center; }
+  .co-items { list-style: none; margin: 0 0 12px; padding: 0 0 12px; border-bottom: 1px dashed var(--line); display: grid; gap: 8px; font-size: 15px; }
+  .co-items li { display: flex; justify-content: space-between; gap: 12px; }
+  .co-items span:first-child { color: var(--muted); }
+  .co-items strong { white-space: nowrap; }
+
+  /* ---------- Checkout ---------- */
+  .checkout { display: grid; gap: 24px; align-items: start; }
+  @media (min-width: 1024px) { .checkout { grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; } }
+  .form-card { padding: 24px 20px; margin-bottom: 16px; }
+  @media (min-width: 768px) { .form-card { padding: 28px; } }
+  .form-card fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .form-card legend { font: 700 20px 'Montserrat', sans-serif; padding: 0; margin-bottom: 16px; }
+  .step-num {
+    display: inline-grid; place-items: center; width: 30px; height: 30px; margin-right: 8px; border-radius: 50%;
+    background: var(--accent); font-size: 15px; vertical-align: 2px;
+  }
+  .form-grid { display: grid; gap: 16px; }
+  @media (min-width: 600px) { .form-grid--2 { grid-template-columns: 1fr 1fr; } .span-2 { grid-column: 1 / -1; } }
+  .field label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 15px; }
+  .field .req { color: var(--error-text); }
+  .field .opt-label { font-weight: 400; color: var(--muted); }
+  .field input, .field textarea {
+    width: 100%; min-height: 48px; padding: 12px 14px; border: 2px solid var(--line); border-radius: var(--radius-sm);
+    background: #fff; color: var(--text); font: inherit; transition: border-color .2s, box-shadow .2s;
+  }
+  .field textarea { min-height: 96px; resize: vertical; }
+  .field input:hover, .field textarea:hover { border-color: var(--accent); }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(201, 99, 124, .25); }
+  .field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-color: var(--error); }
+  .field__error { color: var(--error-text); font-size: 14px; margin-top: 6px; font-weight: 700; }
+  .field__error:empty { display: none; }
+  .field__help { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .info-box { margin-top: 14px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--soft); }
+  .info-box--warn { background: var(--warn-bg); color: var(--warn-text); }
+  .sub-title { font: 600 15px 'Montserrat', sans-serif; margin: 16px 0 10px; }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+  .slot {
+    min-height: 44px; border: 2px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer;
+    font: 600 15px 'Montserrat', sans-serif; color: var(--text); transition: border-color .2s, background .2s;
+  }
+  .slot:hover:not(:disabled) { border-color: var(--accent); }
+  .slot[aria-pressed="true"] { border-color: var(--primary); background: var(--soft); }
+  .slot:disabled { background: #F3EEED; color: #A8999A; border-color: transparent; cursor: not-allowed; text-decoration: line-through; }
+  .pay-options { display: grid; gap: 10px; }
+  @media (min-width: 600px) { .pay-options { grid-template-columns: repeat(3, 1fr); } }
+  .pay-panel {
+    margin-top: 16px; padding: 20px; border-radius: var(--radius); border: 1px solid var(--line);
+    background: linear-gradient(135deg, var(--soft), var(--bg)); animation: fadeIn .2s ease;
+  }
+  .demo-badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; margin-bottom: 14px;
+    border-radius: 999px; background: var(--warn-bg); color: var(--warn-text); font-weight: 700; font-size: 14px;
+  }
+  .form-error {
+    margin-bottom: 12px; padding: 12px 14px; border-radius: var(--radius-sm);
+    background: #FDECEC; color: var(--error-text); font-weight: 700; font-size: 15px;
+  }
+  .form-error:empty { display: none; }
+  .spinner {
+    width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid currentColor; border-right-color: transparent;
+    animation: spin .7s linear infinite;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal {
+    position: fixed; inset: 0; z-index: 100; display: none; padding: 24px 16px; overflow-y: auto;
+    background: rgba(61, 44, 46, .5);
+  }
+  .modal.is-open { display: flex; }
+  .modal__dialog { width: 100%; max-width: 560px; margin: auto; padding: 28px 20px; animation: rise .25s ease; }
+  @media (min-width: 600px) { .modal__dialog { padding: 32px; } }
+  .modal__top { text-align: center; margin-bottom: 20px; }
+  .success-icon {
+    width: 68px; height: 68px; margin: 0 auto 14px; border-radius: 50%; background: var(--success);
+    display: grid; place-items: center; font-size: 32px; color: var(--text);
+  }
+  .modal__top p { color: var(--muted); margin-top: 8px; }
+  .order-id {
+    display: inline-block; margin-top: 12px; padding: 6px 16px; border-radius: 999px;
+    background: var(--soft); font: 700 18px 'Montserrat', sans-serif; letter-spacing: .04em;
+  }
+  .confirm-block { padding: 16px 0; border-top: 1px dashed var(--line); }
+  .confirm-block h3 { font-size: 16px; margin-bottom: 10px; }
+  .confirm-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .confirm-items li { display: flex; justify-content: space-between; gap: 12px; }
+  .confirm-items small { display: block; color: var(--muted); font-size: 13px; }
+  .confirm-items strong { white-space: nowrap; }
+  .dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; }
+  .dl dt { color: var(--muted); }
+  .dl dd { margin: 0; font-weight: 700; }
+
+  /* ---------- FAB & toast ---------- */
+  .fab {
+    position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 60; display: none;
+    align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 10px 18px;
+    border-radius: 16px; background: var(--primary); color: var(--text); text-decoration: none;
+    font: 700 16px 'Montserrat', sans-serif; box-shadow: 0 10px 30px rgba(61,44,46,.25);
+  }
+  @media (max-width: 767px) {
+    .fab.is-visible { display: flex; }
+    body.has-fab { padding-bottom: 88px; }
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; z-index: 90; max-width: calc(100% - 32px);
+    padding: 12px 18px; border-radius: 12px; background: var(--text); color: #fff; font-weight: 700;
+    box-shadow: var(--shadow); opacity: 0; transform: translate(-50%, 16px); pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+  @media (max-width: 767px) { .toast { bottom: 88px; } }
+
+  /* ---------- Footer ---------- */
+  .footer { background: var(--text); color: #FBEFF1; padding: 40px 0 28px; }
+  .footer__grid { display: grid; gap: 24px; }
+  @media (min-width: 768px) { .footer__grid { grid-template-columns: 1.2fr 1fr 1fr 1fr; } }
+  .footer h3 { font-size: 16px; margin-bottom: 10px; color: #fff; }
+  .footer p, .footer li { color: #E9D6DA; font-size: 15px; }
+  .footer ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+  .footer a { color: #fff; }
+  .footer .logo { color: #fff; }
+  .footer__bottom { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.15); font-size: 14px; color: #D9C3C8; }
+
+  /* ---------- Animations ---------- */
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  @keyframes bump { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  @keyframes flash { 0% { transform: scale(1); color: var(--primary-hover); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+  @keyframes drop { from { opacity: 0; transform: scale(1.6); } to { opacity: 1; transform: scale(1); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<a class="visually-hidden" href="#pizza">Перейти к конструктору</a>
+
+<header class="header">
+  <div class="container header__inner">
+    <a href="#top" class="logo" aria-label="Pink Slice & Roll — наверх">
+      <span class="logo__mark" aria-hidden="true">🍕</span>
+      <span>Pink Slice <span class="logo__amp">&amp;</span> Roll</span>
+    </a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a href="#pizza">Пицца</a>
+      <a href="#sushi">Суши</a>
+      <a href="#checkout">Доставка</a>
+      <a href="#cart">Корзина</a>
+    </nav>
+    <a href="#cart" class="cart-link">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+      <span class="visually-hidden">Корзина, позиций:</span>
+      <span class="badge" id="cartCount" aria-live="polite">0</span>
+    </a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ================= HERO ================= -->
+  <section class="hero" aria-labelledby="heroTitle">
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <span class="eyebrow">Доставка от 45 минут</span>
+        <h1 id="heroTitle">Соберите свою пиццу и суши</h1>
+        <p class="lead">Выберите размер, тесто и любимые ингредиенты — цена пересчитается сразу. Привезём к удобному времени.</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#pizza">🍕 Собрать пиццу</a>
+          <a class="btn btn--ghost" href="#sushi">🍣 Собрать суши</a>
+        </div>
+        <ul class="hero__chips">
+          <li>🕙 10:00–23:00</li>
+          <li>🚚 Бесплатно от 8 000 ₸</li>
+          <li>🛒 Заказ от 3 200 ₸</li>
+        </ul>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <div class="hero__blob"></div>
+        <svg class="hero__pizza" id="heroPizza" viewBox="0 0 320 320"></svg>
+        <svg class="hero__sushi" id="heroSushi" viewBox="0 0 320 320"></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PIZZA ================= -->
+  <section id="pizza" class="section section--alt" aria-labelledby="pizzaTitle">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Шаг 1</span>
+        <h2 id="pizzaTitle">Конструктор пиццы</h2>
+        <p>Начните с готового рецепта или соберите пиццу с нуля. До 10 ингредиентов, каждый — в одинарной или двойной порции.</p>
+      </div>
+
+      <h3 class="presets-title">Быстрый старт</h3>
+      <div class="presets" id="pizzaPresets"></div>
+
+      <div class="builder">
+        <div class="builder__main">
+          <fieldset class="group">
+            <legend class="group__title">Размер</legend>
+            <div class="options" id="pizzaSizes"></div>
+          </fieldset>
+          <fieldset class="group">
+            <legend class="group__title">Тесто</legend>
+            <div class="options" id="pizzaDoughs"></div>
+          </fieldset>
+          <fieldset class="group">
+            <legend class="group__title">Соус</legend>
+            <div class="options options--chips" id="pizzaSauces"></div>
+          </fieldset>
+          <div class="group">
+            <div class="group__head">
+              <h3 class="group__title">Ингредиенты</h3>
+              <span class="counter-pill" id="pizzaIngCount" aria-live="polite">0 из 10</span>
+              <button type="button" class="btn btn--link" id="pizzaReset" style="margin-left:auto">Сбросить</button>
+            </div>
+            <div id="pizzaIngredients"></div>
+            <p class="notice" id="pizzaNotice" role="status"></p>
+          </div>
+        </div>
+
+        <aside class="builder__side" aria-label="Ваша пицца">
+          <div class="card summary sticky">
+            <div class="edit-banner" id="pizzaEditBanner" hidden>
+              <span>✏️ Редактирование позиции</span>
+              <button type="button" class="btn btn--link" id="pizzaCancelEdit">Отменить</button>
+            </div>
+            <svg class="preview" id="pizzaPreview" viewBox="0 0 320 320" role="img" aria-label="Превью пиццы">
+              <circle cx="160" cy="160" r="158" fill="#FCE8EC"/>
+              <g class="preview-scale" id="pizzaScale"><g id="pizzaArt"></g></g>
+            </svg>
+            <p class="summary__caption" id="pizzaCaption"></p>
+            <p class="summary__desc" id="pizzaDesc"></p>
+            <div class="summary__price">
+              <span>Итого <span class="summary__unit" id="pizzaUnit"></span></span>
+              <strong id="pizzaPrice" aria-live="polite"></strong>
+            </div>
+            <div class="qty-row">
+              <label for="pizzaQty">Количество</label>
+              <div class="stepper">
+                <button type="button" data-qty="pizza" data-step="-1" aria-label="Уменьшить количество">−</button>
+                <input type="number" id="pizzaQty" min="1" max="10" value="1" inputmode="numeric">
+                <button type="button" data-qty="pizza" data-step="1" aria-label="Увеличить количество">+</button>
+              </div>
+            </div>
+            <button type="button" class="btn btn--primary btn--block" id="pizzaAdd">Добавить в корзину</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SUSHI ================= -->
+  <section id="sushi" class="section" aria-labelledby="sushiTitle">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Шаг 2</span>
+        <h2 id="sushiTitle">Конструктор суши</h2>
+        <p>Выберите тип ролла, порцию и от 1 до 4 начинок. Соевый соус, имбирь и васаби — в подарок.</p>
+      </div>
+
+      <h3 class="presets-title">Готовые роллы</h3>
+      <div class="presets" id="sushiPresets"></div>
+
+      <div class="builder">
+        <div class="builder__main">
+          <fieldset class="group">
+            <legend class="group__title">Тип ролла</legend>
+            <div class="options" id="rollTypes"></div>
+          </fieldset>
+          <fieldset class="group">
+            <legend class="group__title">Порция</legend>
+            <div class="options" id="rollPortions"></div>
+          </fieldset>
+          <div class="group">
+            <div class="group__head">
+              <h3 class="group__title">Начинка</h3>
+              <span class="counter-pill" id="sushiFillCount" aria-live="polite">0 из 4</span>
+              <button type="button" class="btn btn--link" id="sushiReset" style="margin-left:auto">Сбросить</button>
+            </div>
+            <div id="sushiFillings"></div>
+            <p class="notice" id="sushiNotice" role="status"></p>
+          </div>
+          <fieldset class="group">
+            <legend class="group__title">Соусы и добавки</legend>
+            <div class="options options--chips" id="rollExtras"></div>
+          </fieldset>
+        </div>
+
+        <aside class="builder__side" aria-label="Ваш ролл">
+          <div class="card summary sticky">
+            <div class="edit-banner" id="sushiEditBanner" hidden>
+              <span>✏️ Редактирование позиции</span>
+              <button type="button" class="btn btn--link" id="sushiCancelEdit">Отменить</button>
+            </div>
+            <svg class="preview" id="sushiPreview" viewBox="0 0 320 320" role="img" aria-label="Превью ролла в разрезе">
+              <circle cx="160" cy="160" r="158" fill="#FCE8EC"/>
+              <g class="preview-scale" id="sushiScale"><g id="sushiArt"></g></g>
+            </svg>
+            <p class="summary__caption" id="sushiCaption"></p>
+            <p class="summary__desc" id="sushiDesc"></p>
+            <div class="summary__price">
+              <span>Итого <span class="summary__unit" id="sushiUnit"></span></span>
+              <strong id="sushiPrice" aria-live="polite"></strong>
+            </div>
+            <div class="qty-row">
+              <label for="sushiQty">Количество</label>
+              <div class="stepper">
+                <button type="button" data-qty="sushi" data-step="-1" aria-label="Уменьшить количество">−</button>
+                <input type="number" id="sushiQty" min="1" max="10" value="1" inputmode="numeric">
+                <button type="button" data-qty="sushi" data-step="1" aria-label="Увеличить количество">+</button>
+              </div>
+            </div>
+            <button type="button" class="btn btn--primary btn--block" id="sushiAdd" aria-describedby="sushiHint">Добавить в корзину</button>
+            <p class="hint hint--warn" id="sushiHint">Выберите начинку</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CART ================= -->
+  <section id="cart" class="section section--alt" aria-labelledby="cartTitle">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Шаг 3</span>
+        <h2 id="cartTitle">Корзина</h2>
+      </div>
+      <div class="cart">
+        <div>
+          <ul class="cart-list" id="cartList" aria-live="polite"></ul>
+          <div class="card cart-empty" id="cartEmpty">
+            <div class="cart-empty__icon" aria-hidden="true">🧺</div>
+            <h3>Здесь пока пусто</h3>
+            <p>Соберите что-нибудь вкусное — мы уже разогреваем печь.</p>
+            <div class="cart-empty__actions">
+              <a class="btn btn--primary" href="#pizza">Собрать пиццу</a>
+              <a class="btn btn--ghost" href="#sushi">Собрать суши</a>
+            </div>
+          </div>
+        </div>
+        <aside class="card totals sticky" aria-label="Итог корзины">
+          <h3>Сумма заказа</h3>
+          <div class="totals__row"><span>Товары</span><strong id="cartSubtotal">0 ₸</strong></div>
+          <div class="totals__row"><span>Доставка</span><strong id="cartDelivery">—</strong></div>
+          <div class="progress" id="cartProgress">
+            <p class="progress__text" id="cartProgressText" aria-live="polite"></p>
+            <div class="progress__bar"><div class="progress__fill" id="cartProgressFill"></div></div>
+          </div>
+          <div class="totals__row totals__row--total"><span>Итого</span><span id="cartTotal" aria-live="polite">0 ₸</span></div>
+          <button type="button" class="btn btn--primary btn--block" id="toCheckout" style="margin-top:16px">Оформить заказ</button>
+          <p class="min-note" id="cartMinNote"></p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CHECKOUT ================= -->
+  <section id="checkout" class="section" aria-labelledby="checkoutTitle">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Шаг 4</span>
+        <h2 id="checkoutTitle">Доставка и оплата</h2>
+        <p>Почти готово! Расскажите, куда и когда привезти заказ.</p>
+      </div>
+
+      <form id="orderForm" class="checkout" novalidate>
+        <div>
+          <!-- Контакты -->
+          <div class="card form-card">
+            <fieldset>
+              <legend><span class="step-num">1</span>Контакты</legend>
+              <div class="form-grid form-grid--2">
+                <div class="field">
+                  <label for="fName">Имя <span class="req" aria-hidden="true">*</span></label>
+                  <input id="fName" name="name" type="text" autocomplete="given-name" maxlength="50" required aria-describedby="fName-error">
+                  <p class="field__error" id="fName-error"></p>
+                </div>
+                <div class="field">
+                  <label for="fPhone">Телефон <span class="req" aria-hidden="true">*</span></label>
+                  <input id="fPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 (___) ___-__-__" required aria-describedby="fPhone-error">
+                  <p class="field__error" id="fPhone-error"></p>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Адрес -->
+          <div class="card form-card">
+            <fieldset>
+              <legend><span class="step-num">2</span>Адрес</legend>
+              <div class="form-grid form-grid--2">
+                <div class="field span-2">
+                  <label for="fStreet">Улица, дом <span class="req" aria-hidden="true">*</span></label>
+                  <input id="fStreet" name="street" type="text" autocomplete="street-address" required aria-describedby="fStreet-error">
+                  <p class="field__error" id="fStreet-error"></p>
+                </div>
+                <div class="field">
+                  <label for="fApt">Квартира / офис <span class="opt-label">— необязательно</span></label>
+                  <input id="fApt" name="apartment" type="text">
+                </div>
+                <div class="field">
+                  <label for="fEntrance">Подъезд, этаж <span class="opt-label">— необязательно</span></label>
+                  <input id="fEntrance" name="entrance" type="text">
+                </div>
+                <div class="field span-2">
+                  <label for="fComment">Комментарий курьеру <span class="opt-label">— необязательно</span></label>
+                  <textarea id="fComment" name="comment" maxlength="300" aria-describedby="fComment-help fComment-error"></textarea>
+                  <div class="field__help" id="fComment-help"><span>Например: «Домофон не работает»</span><span id="fCommentCount">0 / 300</span></div>
+                  <p class="field__error" id="fComment-error"></p>
+                </div>
+                <div class="field">
+                  <label for="fCutlery">Приборы / палочки, шт.</label>
+                  <input id="fCutlery" name="cutlery" type="number" min="0" max="10" value="1" inputmode="numeric" aria-describedby="fCutlery-error">
+                  <p class="field__error" id="fCutlery-error"></p>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Время -->
+          <div class="card form-card">
+            <fieldset>
+              <legend><span class="step-num">3</span>Время доставки</legend>
+              <div class="options" id="deliveryMode">
+                <label class="opt"><input type="radio" name="deliveryMode" value="asap" id="modeAsap" checked><span class="opt__body"><span class="opt__title">⚡ Как можно скорее</span><span class="opt__meta" id="asapMeta"></span></span></label>
+                <label class="opt"><input type="radio" name="deliveryMode" value="scheduled" id="modeScheduled"><span class="opt__body"><span class="opt__title">🕒 Ко времени</span><span class="opt__meta">Сегодня или завтра</span></span></label>
+              </div>
+              <p class="info-box info-box--warn" id="closedNote" hidden>Сейчас мы не принимаем срочные заказы — работаем с 10:00 до 23:00. Выберите удобное время, и мы привезём заказ к нему.</p>
+              <p class="info-box" id="asapInfo" aria-live="polite"></p>
+              <div id="scheduledPanel" hidden>
+                <p class="sub-title">День</p>
+                <div class="options options--chips" id="deliveryDates"></div>
+                <p class="sub-title" id="slotsLabel">Время</p>
+                <div class="slots" id="slots" role="group" aria-labelledby="slotsLabel"></div>
+              </div>
+              <p class="field__error" id="timeError" role="alert"></p>
+            </fieldset>
+          </div>
+
+          <!-- Оплата -->
+          <div class="card form-card">
+            <fieldset>
+              <legend><span class="step-num">4</span>Оплата</legend>
+              <div class="pay-options">
+                <label class="opt"><input type="radio" name="payment" value="online" checked><span class="opt__body"><span class="opt__title">💳 Онлайн картой</span><span class="opt__meta">На сайте (демо)</span></span></label>
+                <label class="opt"><input type="radio" name="payment" value="courier-card"><span class="opt__body"><span class="opt__title">🏧 Картой курьеру</span><span class="opt__meta">Терминал при получении</span></span></label>
+                <label class="opt"><input type="radio" name="payment" value="cash"><span class="opt__body"><span class="opt__title">💵 Наличными</span><span class="opt__meta">Курьеру при получении</span></span></label>
+              </div>
+
+              <div class="pay-panel" id="payOnline">
+                <span class="demo-badge">🧪 Демо-режим: оплата не списывается</span>
+                <div class="form-grid form-grid--2">
+                  <div class="field span-2">
+                    <label for="cardNumber">Номер карты</label>
+                    <input id="cardNumber" type="text" inputmode="numeric" autocomplete="off" placeholder="0000 0000 0000 0000" maxlength="19" aria-describedby="cardNumber-error">
+                    <p class="field__error" id="cardNumber-error"></p>
+                  </div>
+                  <div class="field">
+                    <label for="cardExp">Срок действия</label>
+                    <input id="cardExp" type="text" inputmode="numeric" autocomplete="off" placeholder="ММ/ГГ" maxlength="5" aria-describedby="cardExp-error">
+                    <p class="field__error" id="cardExp-error"></p>
+                  </div>
+                  <div class="field">
+                    <label for="cardCvc">CVC</label>
+                    <input id="cardCvc" type="password" inputmode="numeric" autocomplete="off" placeholder="•••" maxlength="3" aria-describedby="cardCvc-error">
+                    <p class="field__error" id="cardCvc-error"></p>
+                  </div>
+                </div>
+                <p class="hint" style="text-align:left">Данные карты никуда не передаются и не сохраняются. Для проверки можно ввести 4242 4242 4242 4242.</p>
+              </div>
+
+              <div class="pay-panel" id="payCash" hidden>
+                <div class="field">
+                  <label for="cashFrom">С какой суммы подготовить сдачу? <span class="opt-label">— необязательно</span></label>
+                  <input id="cashFrom" type="text" inputmode="numeric" placeholder="Например, 2000" aria-describedby="cashFrom-error">
+                  <p class="field__error" id="cashFrom-error"></p>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <aside class="card totals sticky" aria-label="Ваш заказ">
+          <h3>Ваш заказ</h3>
+          <ul class="co-items" id="coItems"></ul>
+          <div class="totals__row"><span>Товары</span><strong id="coSubtotal">0 ₸</strong></div>
+          <div class="totals__row"><span>Доставка</span><strong id="coDelivery">—</strong></div>
+          <div class="totals__row totals__row--total"><span>Итого</span><span id="coTotal" aria-live="polite">0 ₸</span></div>
+          <p class="form-error" id="formError" role="alert"></p>
+          <button type="submit" class="btn btn--primary btn--block" id="submitBtn" style="margin-top:16px">Оформить заказ</button>
+          <p class="min-note" id="coMinNote"></p>
+        </aside>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <a href="#top" class="logo"><span class="logo__mark" aria-hidden="true">🍕</span><span>Pink Slice &amp; Roll</span></a>
+        <p style="margin-top:10px">Пицца и роллы, собранные по вашему вкусу.</p>
+      </div>
+      <div>
+        <h3>Контакты</h3>
+        <ul>
+          <li><a href="tel:+78000000000">+7 (800) 000-00-00</a></li>
+          <li>hello@pinkslice.example</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Часы работы</h3>
+        <ul><li>Ежедневно 10:00–23:00</li><li>Доставка от 45 минут</li></ul>
+      </div>
+      <div>
+        <h3>Зона доставки</h3>
+        <ul><li>В пределах города</li><li>Бесплатно от 8 000 ₸, иначе 1 060 ₸</li></ul>
+      </div>
+    </div>
+    <p class="footer__bottom">© 2026 Pink Slice &amp; Roll · Прототип: заказы не отправляются, оплата не списывается.</p>
+  </div>
+</footer>
+
+<a href="#cart" class="fab" id="fab" aria-label="Перейти в корзину">
+  <span>🛒 Корзина · <span id="fabCount">0</span></span>
+  <span id="fabTotal">0 ₸</span>
+</a>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="card modal__dialog">
+    <div class="modal__top">
+      <div class="success-icon" aria-hidden="true">✓</div>
+      <h2 id="confirmTitle">Спасибо! Ваш заказ принят</h2>
+      <p>Мы уже начали готовить. Курьер позвонит перед приездом.</p>
+      <span class="order-id" id="confirmId"></span>
+    </div>
+    <div class="confirm-block">
+      <h3>Состав заказа</h3>
+      <ul class="confirm-items" id="confirmItems"></ul>
+    </div>
+    <div class="confirm-block">
+      <dl class="dl" id="confirmDetails"></dl>
+    </div>
+    <button type="button" class="btn btn--primary btn--block" id="newOrderBtn">Сделать новый заказ</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     КОНФИГУРАЦИЯ: цены, ингредиенты, пресеты, часы работы.
+     Меняйте значения здесь — логика ниже их только читает.
+     ===================================================================== */
+  const CONFIG = {
+    hours: { open: 10 * 60, close: 23 * 60 },   // 10:00–23:00
+    leadMinutes: 45,                             // минимум на приготовление и доставку
+    asapWindow: [45, 60],                        // «как можно скорее»: +45–60 мин
+    firstSlot: 11 * 60,                          // первый слот: открытие + 45 мин → 11:00
+    slotStep: 30,
+    minOrder: 3200,
+    freeDeliveryFrom: 8000,
+    deliveryFee: 1060,
+    maxQty: 10,
+
+    pizza: {
+      maxIngredients: 10,
+      defaults: { size: '30', dough: 'traditional', sauce: 'tomato' },
+      sizes: [
+        { id: '25', name: 'Маленькая', diameter: 25, price: 2090, coef: 1,   scale: 0.76 },
+        { id: '30', name: 'Средняя',   diameter: 30, price: 2940, coef: 1.3, scale: 0.88 },
+        { id: '35', name: 'Большая',   diameter: 35, price: 3850, coef: 1.6, scale: 1 }
+      ],
+      doughs: [
+        { id: 'thin',         name: 'Тонкое',        desc: 'тонкое тесто',        price: 0,   crust: 8,  color: '#EBC184' },
+        { id: 'traditional',  name: 'Традиционное',  desc: 'традиционное тесто',  price: 0,   crust: 14, color: '#E2A862' },
+        { id: 'fluffy',       name: 'Пышное',        desc: 'пышное тесто',        price: 270,  crust: 22, color: '#DA9A55' },
+        { id: 'cheese-crust', name: 'Сырный бортик', desc: 'сырный бортик',       price: 640, crust: 20, color: '#E2A862' }
+      ],
+      sauces: [
+        { id: 'tomato', name: 'Томатный',  desc: 'томатный соус',  color: '#D9473A' },
+        { id: 'cream',  name: 'Сливочный', desc: 'сливочный соус', color: '#F6E7CC' },
+        { id: 'bbq',    name: 'Барбекю',   desc: 'соус барбекю',   color: '#7A3520' },
+        { id: 'pesto',  name: 'Песто',     desc: 'соус песто',     color: '#7FA344' }
+      ],
+      categories: [
+        { id: 'cheese',  name: 'Сыры' },
+        { id: 'meat',    name: 'Мясо' },
+        { id: 'seafood', name: 'Морепродукты' },
+        { id: 'veg',     name: 'Овощи' }
+      ],
+      // price — цена за 25 см; для 30 и 35 см умножается на coef
+      ingredients: [
+        { id: 'mozzarella', name: 'Моцарелла',   cat: 'cheese',  price: 320,  icon: '🧀', shape: 'blob',     color: '#FFF4D4', pieces: 9 },
+        { id: 'parmesan',   name: 'Пармезан',    cat: 'cheese',  price: 430,  icon: '🧀', shape: 'shred',    color: '#F2DF9C', pieces: 12 },
+        { id: 'dorblu',     name: 'Дор блю',     cat: 'cheese',  price: 480,  icon: '🧀', shape: 'blob',     color: '#DCE5EA', pieces: 6 },
+        { id: 'cheddar',    name: 'Чеддер',      cat: 'cheese',  price: 370,  icon: '🧀', shape: 'blob',     color: '#F3A93E', pieces: 6 },
+        { id: 'pepperoni',  name: 'Пепперони',   cat: 'meat',    price: 430,  icon: '🍕', shape: 'disc',     color: '#B8322A', pieces: 8 },
+        { id: 'ham',        name: 'Ветчина',     cat: 'meat',    price: 370,  icon: '🍖', shape: 'square',   color: '#F09A9A', pieces: 7 },
+        { id: 'chicken',    name: 'Курица',      cat: 'meat',    price: 400,  icon: '🍗', shape: 'chunk',    color: '#F3D9B0', pieces: 7 },
+        { id: 'bacon',      name: 'Бекон',       cat: 'meat',    price: 480,  icon: '🥓', shape: 'strip',    color: '#C9574B', pieces: 6 },
+        { id: 'beef',       name: 'Говядина',    cat: 'meat',    price: 590, icon: '🥩', shape: 'chunk',    color: '#7B3B2A', pieces: 7 },
+        { id: 'shrimp',     name: 'Креветки',    cat: 'seafood', price: 800, icon: '🦐', shape: 'shrimp',   color: '#F49A78', pieces: 6 },
+        { id: 'salmon',     name: 'Лосось',      cat: 'seafood', price: 750, icon: '🐟', shape: 'fish',     color: '#F5866A', pieces: 6 },
+        { id: 'tuna',       name: 'Тунец',       cat: 'seafood', price: 640, icon: '🐠', shape: 'fish',     color: '#B5545E', pieces: 6 },
+        { id: 'tomatoes',   name: 'Томаты',      cat: 'veg',     price: 210,  icon: '🍅', shape: 'tomato',   color: '#E2392F', pieces: 6 },
+        { id: 'pepper',     name: 'Перец',       cat: 'veg',     price: 210,  icon: '🫑', shape: 'pepper',   color: '#4FA046', pieces: 7 },
+        { id: 'onion',      name: 'Лук',         cat: 'veg',     price: 160,  icon: '🧅', shape: 'ring',     color: '#B678C2', pieces: 7 },
+        { id: 'mushrooms',  name: 'Шампиньоны',  cat: 'veg',     price: 240,  icon: '🍄', shape: 'mushroom', color: '#D9C4A8', pieces: 7 },
+        { id: 'olives',     name: 'Маслины',     cat: 'veg',     price: 270,  icon: '🫒', shape: 'olive',    color: '#2E2A2B', pieces: 9 },
+        { id: 'jalapeno',   name: 'Халапеньо',   cat: 'veg',     price: 210,  icon: '🌶️', shape: 'jalapeno', color: '#5FAE3C', pieces: 7 },
+        { id: 'arugula',    name: 'Руккола',     cat: 'veg',     price: 270,  icon: '🥬', shape: 'leaf',     color: '#4E8F3A', pieces: 9 }
+      ],
+      presets: [
+        { name: 'Маргарита',   icon: '🍅', config: { size: '30', dough: 'traditional', sauce: 'tomato', ingredients: [{ id: 'mozzarella', portion: 2 }, { id: 'tomatoes', portion: 1 }] } },
+        { name: 'Пепперони',   icon: '🍕', config: { size: '30', dough: 'traditional', sauce: 'tomato', ingredients: [{ id: 'mozzarella', portion: 1 }, { id: 'pepperoni', portion: 2 }] } },
+        { name: 'Четыре сыра', icon: '🧀', config: { size: '30', dough: 'thin', sauce: 'cream', ingredients: [{ id: 'mozzarella', portion: 1 }, { id: 'parmesan', portion: 1 }, { id: 'dorblu', portion: 1 }, { id: 'cheddar', portion: 1 }] } },
+        { name: 'С креветками', icon: '🦐', config: { size: '30', dough: 'thin', sauce: 'cream', ingredients: [{ id: 'mozzarella', portion: 1 }, { id: 'shrimp', portion: 1 }, { id: 'tomatoes', portion: 1 }, { id: 'arugula', portion: 1 }] } }
+      ]
+    },
+
+    sushi: {
+      maxFillings: 4,
+      defaults: { rollType: 'classic', portion: '8' },
+      types: [
+        { id: 'classic',    name: 'Классический', title: 'Классический ролл', desc: 'нори снаружи', price: 0 },
+        { id: 'inside-out', name: '«Наизнанку»',  title: 'Ролл «наизнанку»',  desc: 'рис снаружи',  price: 0 },
+        { id: 'baked',      name: 'Запечённый',   title: 'Запечённый ролл',   desc: 'под сырной шапкой', price: 320 },
+        { id: 'tempura',    name: 'Темпура',      title: 'Темпура-ролл',      desc: 'в хрустящем кляре', price: 430 }
+      ],
+      portions: [
+        { id: '4',  name: 'Мини',     pieces: 4,  price: 1020, scale: 0.5, view: 0.78 },
+        { id: '8',  name: 'Стандарт', pieces: 8,  price: 1820, scale: 1,   view: 0.9 },
+        { id: '12', name: 'Большая',  pieces: 12, price: 2570, scale: 1.5, view: 1 }
+      ],
+      categories: [
+        { id: 'fish',  name: 'Рыба и морепродукты' },
+        { id: 'veg',   name: 'Овощи' },
+        { id: 'extra', name: 'Дополнительно' }
+      ],
+      // price — цена за 8 шт.; масштабируется по portion.scale
+      fillings: [
+        { id: 'salmon',       name: 'Лосось',           cat: 'fish',  price: 860, icon: '🍣', color: '#F58A68' },
+        { id: 'tuna',         name: 'Тунец',            cat: 'fish',  price: 800, icon: '🐟', color: '#C2475A' },
+        { id: 'eel',          name: 'Угорь',            cat: 'fish',  price: 860, icon: '',   color: '#8A5A3A' },
+        { id: 'shrimp',       name: 'Креветка',         cat: 'fish',  price: 700, icon: '🦐', color: '#F7A88A' },
+        { id: 'crab',         name: 'Краб',             cat: 'fish',  price: 480,  icon: '🦀', color: '#F2C0B0' },
+        { id: 'cucumber',     name: 'Огурец',           cat: 'veg',   price: 160,  icon: '🥒', color: '#7DBB5A' },
+        { id: 'avocado',      name: 'Авокадо',          cat: 'veg',   price: 320,  icon: '🥑', color: '#B9D46A' },
+        { id: 'bell-pepper',  name: 'Болгарский перец', cat: 'veg',   price: 210,  icon: '🫑', color: '#F0B03A' },
+        { id: 'takuan',       name: 'Такуан',           cat: 'veg',   price: 210,  icon: '',   color: '#F3DB5A' },
+        { id: 'cream-cheese', name: 'Сливочный сыр',    cat: 'extra', price: 370,  icon: '🧀', color: '#FFFAF0' },
+        { id: 'tobiko',       name: 'Тобико',           cat: 'extra', price: 320,  icon: '',   color: '#F26B2A' },
+        { id: 'sesame',       name: 'Кунжут',           cat: 'extra', price: 160,  icon: '',   color: '#E8D6A6' },
+        { id: 'green-onion',  name: 'Зелёный лук',      cat: 'extra', price: 160,  icon: '🌿', color: '#5DA347' }
+      ],
+      extras: [
+        { id: 'soy',    name: 'Соевый соус',  price: 0,  default: true },
+        { id: 'ginger', name: 'Имбирь',       price: 0,  default: true },
+        { id: 'wasabi', name: 'Васаби',       price: 0,  default: true },
+        { id: 'spicy',  name: 'Спайси-соус',  price: 210, default: false },
+        { id: 'unagi',  name: 'Унаги-соус',   price: 210, default: false }
+      ],
+      presets: [
+        { name: 'Филадельфия', icon: '🍣', config: { rollType: 'inside-out', portion: '8', fillings: ['salmon', 'cream-cheese', 'cucumber'], extras: ['soy', 'ginger', 'wasabi'] } },
+        { name: 'Калифорния',  icon: '🦀', config: { rollType: 'inside-out', portion: '8', fillings: ['crab', 'avocado', 'cucumber', 'tobiko'], extras: ['soy', 'ginger', 'wasabi'] } },
+        { name: 'Унаги маки',  icon: '🍱', config: { rollType: 'classic', portion: '8', fillings: ['eel', 'cucumber', 'sesame'], extras: ['soy', 'ginger', 'wasabi', 'unagi'] } },
+        { name: 'Овощной',     icon: '🥑', config: { rollType: 'classic', portion: '8', fillings: ['cucumber', 'avocado', 'bell-pepper', 'takuan'], extras: ['soy', 'ginger', 'wasabi'] } }
+      ]
+    }
+  };
+
+  /* ===================================================================== */
+  const P = CONFIG.pizza, S = CONFIG.sushi;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const byId = (list, id) => list.find(x => x.id === id);
+  const tenge = n => n.toLocaleString('ru-RU') + ' ₸';
+  const lc = s => s.charAt(0).toLowerCase() + s.slice(1);
+  const clampQty = n => Math.min(CONFIG.maxQty, Math.max(1, Math.round(Number(n) || 1)));
+  const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+
+  function defaultPizza() { return Object.assign({ ingredients: [], qty: 1, editingId: null }, P.defaults); }
+  function defaultSushi() {
+    return Object.assign({ fillings: [], extras: S.extras.filter(e => e.default).map(e => e.id), qty: 1, editingId: null }, S.defaults);
+  }
+
+  const state = {
+    pizza: defaultPizza(),
+    sushi: defaultSushi(),
+    cart: [],
+    delivery: { mode: 'asap', date: 'today', time: null },
+    payment: 'online',
+    uid: 0,
+    submitting: false
+  };
+
+  /* ---------- Расчёт цен ---------- */
+  const pizzaIngPrice = (ing, sizeId) => Math.round(ing.price * byId(P.sizes, sizeId).coef);
+  function pizzaPrice(c) {
+    return byId(P.sizes, c.size).price + byId(P.doughs, c.dough).price +
+      c.ingredients.reduce((s, it) => s + pizzaIngPrice(byId(P.ingredients, it.id), c.size) * it.portion, 0);
+  }
+  const sushiFillPrice = (f, portionId) => Math.round(f.price * byId(S.portions, portionId).scale);
+  function sushiPrice(c) {
+    return byId(S.portions, c.portion).price + byId(S.types, c.rollType).price +
+      c.fillings.reduce((s, id) => s + sushiFillPrice(byId(S.fillings, id), c.portion), 0) +
+      c.extras.reduce((s, id) => s + byId(S.extras, id).price, 0);
+  }
+
+  /* ---------- Описания ---------- */
+  const pizzaTitle = c => `Пицца ${byId(P.sizes, c.size).diameter} см`;
+  function pizzaDetails(c) {
+    const base = `${byId(P.doughs, c.dough).desc}, ${byId(P.sauces, c.sauce).desc}`;
+    const ings = c.ingredients.map(it => lc(byId(P.ingredients, it.id).name) + (it.portion === 2 ? ' ×2' : ''));
+    return ings.length ? `${base}: ${ings.join(', ')}` : `${base}, без добавок`;
+  }
+  const sushiTitle = c => `${byId(S.types, c.rollType).title}, ${byId(S.portions, c.portion).pieces} шт.`;
+  function sushiDetails(c) {
+    const f = c.fillings.map(id => lc(byId(S.fillings, id).name));
+    const e = c.extras.map(id => lc(byId(S.extras, id).name));
+    return (f.length ? f.join(', ') : 'начинка не выбрана') + (e.length ? '; ' + e.join(', ') : '');
+  }
+  const itemTitle = it => it.type === 'pizza' ? pizzaTitle(it) : sushiTitle(it);
+  const itemDetails = it => it.type === 'pizza' ? pizzaDetails(it) : sushiDetails(it);
+
+  /* ---------- Визуализация (SVG) ---------- */
+  function rng(seed) {
+    return function () {
+      seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  const f1 = n => n.toFixed(1);
+
+  function topping(ing, x, y, rot) {
+    const c = ing.color, X = f1(x), Y = f1(y), R = `rotate(${rot} ${X} ${Y})`;
+    switch (ing.shape) {
+      case 'blob':     return `<circle cx="${X}" cy="${Y}" r="15" fill="${c}" opacity=".92"/>`;
+      case 'shred':    return `<rect x="${f1(x - 7)}" y="${f1(y - 2)}" width="14" height="4" rx="2" fill="${c}" transform="${R}"/>`;
+      case 'disc':     return `<circle cx="${X}" cy="${Y}" r="12" fill="${c}" stroke="#8E231D" stroke-width="2"/><circle cx="${f1(x - 4)}" cy="${f1(y - 3)}" r="1.6" fill="#E9806F"/><circle cx="${f1(x + 4)}" cy="${f1(y + 3)}" r="1.4" fill="#E9806F"/>`;
+      case 'square':   return `<rect x="${f1(x - 8)}" y="${f1(y - 6)}" width="16" height="12" rx="3" fill="${c}" transform="${R}"/>`;
+      case 'chunk':    return `<rect x="${f1(x - 7)}" y="${f1(y - 6)}" width="14" height="12" rx="5" fill="${c}" transform="${R}"/>`;
+      case 'strip':    return `<g transform="${R}"><rect x="${f1(x - 13)}" y="${f1(y - 4)}" width="26" height="8" rx="3" fill="${c}"/><rect x="${f1(x - 13)}" y="${f1(y - 1)}" width="26" height="2" fill="#F6D2C4"/></g>`;
+      case 'shrimp':   return `<path d="M${f1(x - 9)} ${Y} A9 9 0 1 1 ${f1(x + 9)} ${Y}" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round" transform="${R}"/>`;
+      case 'fish':     return `<ellipse cx="${X}" cy="${Y}" rx="12" ry="6" fill="${c}" transform="${R}"/><path d="M${f1(x - 8)} ${Y} H${f1(x + 8)}" stroke="#fff" stroke-opacity=".5" stroke-width="1.5" transform="${R}"/>`;
+      case 'tomato':   return `<circle cx="${X}" cy="${Y}" r="11" fill="${c}"/><circle cx="${X}" cy="${Y}" r="6.5" fill="#F27A62"/>`;
+      case 'pepper':   return `<rect x="${f1(x - 9)}" y="${f1(y - 2.5)}" width="18" height="5" rx="2.5" fill="${c}" transform="${R}"/>`;
+      case 'ring':     return `<circle cx="${X}" cy="${Y}" r="8" fill="none" stroke="${c}" stroke-width="2.6"/>`;
+      case 'mushroom': return `<g transform="${R}"><path d="M${f1(x - 9)} ${Y} A9 8 0 0 1 ${f1(x + 9)} ${Y} Z" fill="${c}"/><rect x="${f1(x - 3)}" y="${Y}" width="6" height="7" rx="2" fill="#EDE0CC"/></g>`;
+      case 'olive':    return `<circle cx="${X}" cy="${Y}" r="5.5" fill="none" stroke="${c}" stroke-width="3.5"/>`;
+      case 'jalapeno': return `<circle cx="${X}" cy="${Y}" r="7" fill="${c}" stroke="#3C7F24" stroke-width="2"/><circle cx="${X}" cy="${Y}" r="2" fill="#E8F2C8"/>`;
+      case 'leaf':     return `<ellipse cx="${X}" cy="${Y}" rx="12" ry="4.5" fill="${c}" transform="${R}"/>`;
+      default:         return `<circle cx="${X}" cy="${Y}" r="8" fill="${c}"/>`;
+    }
+  }
+
+  function pizzaSVG(c, newIds) {
+    const dough = byId(P.doughs, c.dough), sauce = byId(P.sauces, c.sauce);
+    const R = 150, cx = 160, cy = 160, sauceR = R - dough.crust;
+    let s = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${dough.color}"/>`;
+    if (c.dough === 'cheese-crust') {
+      s += `<circle cx="${cx}" cy="${cy}" r="${R - dough.crust / 2}" fill="none" stroke="#FFD866" stroke-width="9" stroke-dasharray="14 7" stroke-linecap="round"/>`;
+    }
+    s += `<circle cx="${cx}" cy="${cy}" r="${R - 3}" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${sauceR}" fill="${sauce.color}"/>`;
+    c.ingredients.forEach(it => {
+      const ing = byId(P.ingredients, it.id);
+      const rand = rng(hash(it.id));
+      const count = (ing.pieces || 6) * it.portion;
+      const maxR = sauceR - 16;
+      let g = '';
+      for (let k = 0; k < count; k++) {
+        const a = rand() * Math.PI * 2, r = maxR * Math.sqrt(rand());
+        g += topping(ing, cx + Math.cos(a) * r, cy + Math.sin(a) * r, Math.round(rand() * 180));
+      }
+      const isNew = newIds && newIds.has(it.id + ':' + it.portion);
+      s += `<g class="topping${isNew ? ' is-new' : ''}">${g}</g>`;
+    });
+    return s;
+  }
+
+  function sushiSVG(c, uid) {
+    const cx = 160, cy = 160, nori = '#1F2B25', rice = '#FFFDF7';
+    const t = c.rollType;
+    let s = '', fillR = 62;
+    const sesame = (from, to, n) => {
+      const rand = rng(7); let d = '';
+      for (let i = 0; i < n; i++) {
+        const a = rand() * Math.PI * 2, r = from + rand() * (to - from);
+        const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        d += `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="3.2" ry="1.7" fill="${i % 3 ? '#E3CF98' : '#3D2C2E'}" transform="rotate(${Math.round(rand() * 180)} ${f1(x)} ${f1(y)})"/>`;
+      }
+      return d;
+    };
+    if (t === 'classic') {
+      s += `<circle cx="${cx}" cy="${cy}" r="136" fill="${nori}"/><circle cx="${cx}" cy="${cy}" r="124" fill="${rice}"/>`;
+      fillR = 66;
+    } else if (t === 'inside-out') {
+      s += `<circle cx="${cx}" cy="${cy}" r="136" fill="${rice}" stroke="#EDE2D3" stroke-width="3"/>` + sesame(82, 130, 46);
+      s += `<circle cx="${cx}" cy="${cy}" r="76" fill="${nori}"/>`;
+      fillR = 68;
+    } else if (t === 'baked') {
+      s += `<defs><clipPath id="cap-${uid}"><circle cx="${cx}" cy="${cy}" r="137"/></clipPath></defs>`;
+      s += `<circle cx="${cx}" cy="${cy}" r="136" fill="${rice}" stroke="#EDE2D3" stroke-width="3"/>`;
+      s += `<circle cx="${cx}" cy="${cy}" r="76" fill="${nori}"/>`;
+      s += `<g clip-path="url(#cap-${uid})"><path d="M0 0 H320 V104 Q240 132 160 116 Q80 132 0 104 Z" fill="#EE9A55"/>`;
+      const rand = rng(11);
+      for (let i = 0; i < 18; i++) s += `<circle cx="${f1(40 + rand() * 240)}" cy="${f1(30 + rand() * 70)}" r="${f1(2 + rand() * 3)}" fill="#B9622A" opacity=".7"/>`;
+      s += `</g>`;
+      fillR = 68;
+    } else {
+      s += `<circle cx="${cx}" cy="${cy}" r="138" fill="#E4AE55"/>`;
+      const rand = rng(5);
+      for (let i = 0; i < 60; i++) {
+        const a = rand() * Math.PI * 2, r = 122 + rand() * 14;
+        s += `<circle cx="${f1(cx + Math.cos(a) * r)}" cy="${f1(cy + Math.sin(a) * r)}" r="${f1(2 + rand() * 3)}" fill="${i % 2 ? '#F2CB77' : '#C98D35'}"/>`;
+      }
+      s += `<circle cx="${cx}" cy="${cy}" r="118" fill="${rice}"/><circle cx="${cx}" cy="${cy}" r="76" fill="${nori}"/>`;
+      fillR = 68;
+    }
+    const fills = c.fillings.map(id => byId(S.fillings, id));
+    if (!fills.length) {
+      s += `<circle cx="${cx}" cy="${cy}" r="${fillR}" fill="#F7F1EA" stroke="#CDBFB6" stroke-width="2" stroke-dasharray="7 6"/>`;
+      s += `<text x="${cx}" y="${cy + 12}" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="34" font-weight="700" fill="#B3A3A0">?</text>`;
+    } else if (fills.length === 1) {
+      s += `<circle cx="${cx}" cy="${cy}" r="${fillR}" fill="${fills[0].color}"/>`;
+    } else {
+      fills.forEach((f, i) => {
+        const a0 = (-90 + 360 * i / fills.length) * Math.PI / 180;
+        const a1 = (-90 + 360 * (i + 1) / fills.length) * Math.PI / 180;
+        const x0 = cx + Math.cos(a0) * fillR, y0 = cy + Math.sin(a0) * fillR;
+        const x1 = cx + Math.cos(a1) * fillR, y1 = cy + Math.sin(a1) * fillR;
+        s += `<path d="M${cx} ${cy} L${f1(x0)} ${f1(y0)} A${fillR} ${fillR} 0 0 1 ${f1(x1)} ${f1(y1)} Z" fill="${f.color}" stroke="#fff" stroke-opacity=".6" stroke-width="2"/>`;
+      });
+    }
+    s += `<circle cx="${cx}" cy="${cy}" r="${fillR}" fill="none" stroke="#000" stroke-opacity=".06" stroke-width="3"/>`;
+    return s;
+  }
+
+  /* ---------- Общие UI-хелперы ---------- */
+  function optionHTML(o) {
+    return `<label class="opt"><input type="${o.type || 'radio'}" name="${o.name}" value="${o.value}"${o.checked ? ' checked' : ''}>` +
+      `<span class="opt__body"><span class="opt__title">${o.title}</span>${o.meta ? `<span class="opt__meta">${o.meta}</span>` : ''}</span></label>`;
+  }
+  function syncRadios(name, value) { $$(`input[name="${name}"]`).forEach(i => { i.checked = i.value === value; }); }
+
+  let toastTimer;
+  function toast(msg) {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('is-visible'), 2600);
+  }
+  const noticeTimers = {};
+  function notice(sel, msg) {
+    const el = $(sel);
+    el.textContent = msg;
+    restart(el, 'is-visible');
+    clearTimeout(noticeTimers[sel]);
+    noticeTimers[sel] = setTimeout(() => el.classList.remove('is-visible'), 4000);
+  }
+  function hideNotice(sel) { $(sel).classList.remove('is-visible'); }
+
+  function ingredientCards(categories, items, withPortion) {
+    return categories.map(cat => {
+      const list = items.filter(i => i.cat === cat.id);
+      return `<div class="cat"><h4 class="cat__title">${cat.name}</h4><div class="ings">` + list.map(i => `
+        <div class="ing" data-id="${i.id}">
+          <button type="button" class="ing__main" data-action="toggle" aria-pressed="false">
+            <span class="ing__icon" aria-hidden="true">${i.icon || `<span class="swatch" style="background:${i.color}"></span>`}</span>
+            <span class="ing__text"><span class="ing__name">${i.name}</span><span class="ing__price" data-price></span></span>
+            <span class="ing__check" aria-hidden="true">✓</span>
+          </button>
+          ${withPortion ? `<div class="ing__portion" role="group" aria-label="Порция: ${i.name}">
+            <button type="button" data-action="portion" data-portion="1" aria-pressed="true">×1</button>
+            <button type="button" data-action="portion" data-portion="2" aria-pressed="false">×2</button>
+          </div>` : ''}
+        </div>`).join('') + `</div></div>`;
+    }).join('');
+  }
+
+  /* =====================================================================
+     ПИЦЦА
+     ===================================================================== */
+  let pizzaRendered = new Set();
+
+  function buildPizza() {
+    $('#pizzaSizes').innerHTML = P.sizes.map(s => optionHTML({ name: 'pizzaSize', value: s.id, title: s.name, meta: `${s.diameter} см · ${tenge(s.price)}` })).join('');
+    $('#pizzaDoughs').innerHTML = P.doughs.map(d => optionHTML({ name: 'pizzaDough', value: d.id, title: d.name, meta: d.price ? `+${tenge(d.price)}` : 'без доплаты' })).join('');
+    $('#pizzaSauces').innerHTML = P.sauces.map(s => optionHTML({ name: 'pizzaSauce', value: s.id, title: s.name })).join('');
+    $('#pizzaIngredients').innerHTML = ingredientCards(P.categories, P.ingredients, true);
+    $('#pizzaPresets').innerHTML = P.presets.map((p, i) => {
+      const c = Object.assign({}, p.config);
+      return `<button type="button" class="preset" data-preset="${i}">
+        <span class="preset__icon" aria-hidden="true">${p.icon}</span>
+        <span><span class="preset__name">${p.name}</span><span class="preset__meta">${byId(P.sizes, c.size).diameter} см · ${tenge(pizzaPrice(c))}</span></span>
+      </button>`;
+    }).join('');
+
+    $('#pizzaIngredients').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const card = btn.closest('.ing'), id = card.dataset.id;
+      const list = state.pizza.ingredients;
+      const idx = list.findIndex(x => x.id === id);
+      if (btn.dataset.action === 'toggle') {
+        if (idx >= 0) list.splice(idx, 1);
+        else {
+          if (list.length >= P.maxIngredients) {
+            notice('#pizzaNotice', `Ого, какая щедрая пицца! Можно выбрать не больше ${P.maxIngredients} ингредиентов — уберите один, чтобы добавить новый.`);
+            return;
+          }
+          list.push({ id, portion: 1 });
+          restart(card, 'is-pop');
+        }
+      } else if (idx >= 0) {
+        list[idx].portion = Number(btn.dataset.portion);
+      }
+      updatePizza();
+    });
+
+    $('#pizzaPresets').addEventListener('click', e => {
+      const b = e.target.closest('[data-preset]');
+      if (!b) return;
+      const preset = P.presets[Number(b.dataset.preset)];
+      const cfg = preset.config;
+      Object.assign(state.pizza, { size: cfg.size, dough: cfg.dough, sauce: cfg.sauce, ingredients: cfg.ingredients.map(x => Object.assign({}, x)) });
+      hideNotice('#pizzaNotice');
+      updatePizza();
+      toast(`Отличный выбор! «${preset.name}» в конструкторе — можно менять состав.`);
+    });
+
+    $('#pizzaReset').addEventListener('click', () => {
+      state.pizza.ingredients = [];
+      hideNotice('#pizzaNotice');
+      updatePizza();
+    });
+    $('#pizzaAdd').addEventListener('click', () => {
+      const c = state.pizza;
+      const item = { type: 'pizza', size: c.size, dough: c.dough, sauce: c.sauce, ingredients: c.ingredients.map(x => Object.assign({}, x)), quantity: c.qty, price: pizzaPrice(c) };
+      commitItem(item, c.editingId, 'Пицца');
+      if (c.editingId) { state.pizza = defaultPizza(); updatePizza(); goTo('#cart'); }
+      else { c.qty = 1; updatePizza(); }
+    });
+    $('#pizzaCancelEdit').addEventListener('click', () => { state.pizza = defaultPizza(); updatePizza(); goTo('#cart'); });
+  }
+
+  function updatePizza() {
+    const c = state.pizza;
+    syncRadios('pizzaSize', c.size);
+    syncRadios('pizzaDough', c.dough);
+    syncRadios('pizzaSauce', c.sauce);
+    const full = c.ingredients.length >= P.maxIngredients;
+    if (!full) hideNotice('#pizzaNotice');
+
+    $$('#pizzaIngredients .ing').forEach(card => {
+      const ing = byId(P.ingredients, card.dataset.id);
+      const sel = c.ingredients.find(x => x.id === ing.id);
+      card.classList.toggle('is-on', !!sel);
+      card.classList.toggle('is-dim', full && !sel);
+      $('.ing__main', card).setAttribute('aria-pressed', String(!!sel));
+      const price = pizzaIngPrice(ing, c.size);
+      $('[data-price]', card).textContent = sel && sel.portion === 2 ? `${tenge(price)} × 2` : tenge(price);
+      $$('.ing__portion button', card).forEach(b => b.setAttribute('aria-pressed', String(!!sel && sel.portion === Number(b.dataset.portion))));
+    });
+    $('#pizzaIngCount').textContent = `${c.ingredients.length} из ${P.maxIngredients}`;
+
+    const size = byId(P.sizes, c.size);
+    const keys = new Set(c.ingredients.map(x => x.id + ':' + x.portion));
+    const newIds = new Set([...keys].filter(k => !pizzaRendered.has(k)));
+    $('#pizzaArt').innerHTML = pizzaSVG(c, newIds);
+    pizzaRendered = keys;
+    $('#pizzaScale').style.transform = `scale(${size.scale})`;
+    $('#pizzaCaption').textContent = `${size.name} · ${size.diameter} см`;
+    $('#pizzaDesc').textContent = `${pizzaTitle(c)}, ${pizzaDetails(c)}`;
+
+    const unit = pizzaPrice(c);
+    const priceEl = $('#pizzaPrice');
+    const text = tenge(unit * c.qty);
+    if (priceEl.textContent !== text) { priceEl.textContent = text; restart(priceEl, 'flash'); }
+    $('#pizzaUnit').textContent = c.qty > 1 ? `(${tenge(unit)} × ${c.qty})` : '';
+    $('#pizzaQty').value = c.qty;
+    $$('[data-qty="pizza"]').forEach(b => { b.disabled = Number(b.dataset.step) < 0 ? c.qty <= 1 : c.qty >= CONFIG.maxQty; });
+    $('#pizzaAdd').textContent = c.editingId ? 'Сохранить изменения' : 'Добавить в корзину';
+    $('#pizzaEditBanner').hidden = !c.editingId;
+  }
+
+  /* =====================================================================
+     СУШИ
+     ===================================================================== */
+  function buildSushi() {
+    $('#rollTypes').innerHTML = S.types.map(t => optionHTML({ name: 'rollType', value: t.id, title: t.name, meta: t.price ? `${t.desc} · +${tenge(t.price)}` : t.desc })).join('');
+    $('#rollPortions').innerHTML = S.portions.map(p => optionHTML({ name: 'rollPortion', value: p.id, title: p.name, meta: `${p.pieces} шт. · ${tenge(p.price)}` })).join('');
+    $('#rollExtras').innerHTML = S.extras.map(x => optionHTML({ type: 'checkbox', name: 'rollExtra', value: x.id, title: x.name, meta: x.price ? `+${tenge(x.price)}` : 'бесплатно' })).join('');
+    $('#sushiFillings').innerHTML = ingredientCards(S.categories, S.fillings, false);
+    $('#sushiPresets').innerHTML = S.presets.map((p, i) => `<button type="button" class="preset" data-preset="${i}">
+        <span class="preset__icon" aria-hidden="true">${p.icon}</span>
+        <span><span class="preset__name">${p.name}</span><span class="preset__meta">${byId(S.portions, p.config.portion).pieces} шт. · ${tenge(sushiPrice(p.config))}</span></span>
+      </button>`).join('');
+
+    $('#sushiFillings').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const card = btn.closest('.ing'), id = card.dataset.id;
+      const list = state.sushi.fillings;
+      const idx = list.indexOf(id);
+      if (idx >= 0) list.splice(idx, 1);
+      else {
+        if (list.length >= S.maxFillings) {
+          notice('#sushiNotice', `В один ролл помещается до ${S.maxFillings} начинок — уберите одну, чтобы выбрать другую.`);
+          return;
+        }
+        list.push(id);
+        restart(card, 'is-pop');
+      }
+      updateSushi();
+    });
+    $('#sushiPresets').addEventListener('click', e => {
+      const b = e.target.closest('[data-preset]');
+      if (!b) return;
+      const preset = S.presets[Number(b.dataset.preset)];
+      const cfg = preset.config;
+      Object.assign(state.sushi, { rollType: cfg.rollType, portion: cfg.portion, fillings: cfg.fillings.slice(), extras: cfg.extras.slice() });
+      hideNotice('#sushiNotice');
+      updateSushi();
+      toast(`Отличный выбор! «${preset.name}» в конструкторе — можно менять состав.`);
+    });
+    $('#sushiReset').addEventListener('click', () => {
+      state.sushi.fillings = [];
+      hideNotice('#sushiNotice');
+      updateSushi();
+    });
+    $('#sushiAdd').addEventListener('click', () => {
+      const c = state.sushi;
+      if (!c.fillings.length) return;
+      const item = { type: 'sushi', rollType: c.rollType, portion: c.portion, pieces: byId(S.portions, c.portion).pieces, fillings: c.fillings.slice(), extras: c.extras.slice(), quantity: c.qty, price: sushiPrice(c) };
+      commitItem(item, c.editingId, 'Ролл');
+      if (c.editingId) { state.sushi = defaultSushi(); updateSushi(); goTo('#cart'); }
+      else { c.qty = 1; updateSushi(); }
+    });
+    $('#sushiCancelEdit').addEventListener('click', () => { state.sushi = defaultSushi(); updateSushi(); goTo('#cart'); });
+  }
+
+  function updateSushi() {
+    const c = state.sushi;
+    syncRadios('rollType', c.rollType);
+    syncRadios('rollPortion', c.portion);
+    $$('input[name="rollExtra"]').forEach(i => { i.checked = c.extras.includes(i.value); });
+    const full = c.fillings.length >= S.maxFillings;
+    if (!full) hideNotice('#sushiNotice');
+
+    $$('#sushiFillings .ing').forEach(card => {
+      const f = byId(S.fillings, card.dataset.id);
+      const on = c.fillings.includes(f.id);
+      card.classList.toggle('is-on', on);
+      card.classList.toggle('is-dim', full && !on);
+      $('.ing__main', card).setAttribute('aria-pressed', String(on));
+      $('[data-price]', card).textContent = tenge(sushiFillPrice(f, c.portion));
+    });
+    $('#sushiFillCount').textContent = `${c.fillings.length} из ${S.maxFillings}`;
+
+    const portion = byId(S.portions, c.portion);
+    $('#sushiArt').innerHTML = sushiSVG(c, 'builder');
+    $('#sushiScale').style.transform = `scale(${portion.view})`;
+    $('#sushiCaption').textContent = `${byId(S.types, c.rollType).title} · ${portion.pieces} шт.`;
+    $('#sushiDesc').textContent = `${sushiTitle(c)}: ${sushiDetails(c)}`;
+
+    const unit = sushiPrice(c);
+    const priceEl = $('#sushiPrice');
+    const text = tenge(unit * c.qty);
+    if (priceEl.textContent !== text) { priceEl.textContent = text; restart(priceEl, 'flash'); }
+    $('#sushiUnit').textContent = c.qty > 1 ? `(${tenge(unit)} × ${c.qty})` : '';
+    $('#sushiQty').value = c.qty;
+    $$('[data-qty="sushi"]').forEach(b => { b.disabled = Number(b.dataset.step) < 0 ? c.qty <= 1 : c.qty >= CONFIG.maxQty; });
+    const empty = !c.fillings.length;
+    $('#sushiAdd').disabled = empty;
+    $('#sushiHint').hidden = !empty;
+    $('#sushiAdd').textContent = c.editingId ? 'Сохранить изменения' : 'Добавить в корзину';
+    $('#sushiEditBanner').hidden = !c.editingId;
+  }
+
+  /* =====================================================================
+     КОРЗИНА
+     ===================================================================== */
+  function itemKey(it) {
+    return it.type === 'pizza'
+      ? JSON.stringify(['pizza', it.size, it.dough, it.sauce, it.ingredients])
+      : JSON.stringify(['sushi', it.rollType, it.portion, it.fillings, it.extras]);
+  }
+
+  function commitItem(item, editingId, label) {
+    if (editingId) {
+      const i = state.cart.findIndex(x => x.uid === editingId);
+      if (i >= 0) state.cart[i] = Object.assign(item, { uid: editingId });
+      else state.cart.push(Object.assign(item, { uid: ++state.uid }));
+      toast('Готово! Позиция в корзине обновлена.');
+    } else {
+      const key = itemKey(item);
+      const same = state.cart.find(x => itemKey(x) === key);
+      if (same) same.quantity = Math.min(CONFIG.maxQty, same.quantity + item.quantity);
+      else state.cart.push(Object.assign(item, { uid: ++state.uid }));
+      toast(`Отличный выбор! ${label} в корзине 🎉`);
+    }
+    renderCart();
+    restart($('#cartCount'), 'bump');
+  }
+
+  function totals() {
+    const subtotal = state.cart.reduce((s, it) => s + it.price * it.quantity, 0);
+    const deliveryFee = subtotal === 0 || subtotal >= CONFIG.freeDeliveryFrom ? 0 : CONFIG.deliveryFee;
+    return { subtotal, deliveryFee, total: subtotal + deliveryFee, count: state.cart.reduce((s, it) => s + it.quantity, 0) };
+  }
+
+  function renderCart() {
+    const t = totals();
+    $('#cartCount').textContent = t.count;
+    $('#fabCount').textContent = t.count;
+    $('#fabTotal').textContent = tenge(t.total);
+    $('#fab').classList.toggle('is-visible', t.count > 0);
+    document.body.classList.toggle('has-fab', t.count > 0);
+
+    const list = $('#cartList');
+    $('#cartEmpty').hidden = state.cart.length > 0;
+    list.innerHTML = state.cart.map(it => `
+      <li class="card cart-item" data-uid="${it.uid}">
+        <div class="cart-item__icon" aria-hidden="true">${it.type === 'pizza' ? '🍕' : '🍣'}</div>
+        <div>
+          <p class="cart-item__title">${itemTitle(it)}</p>
+          <p class="cart-item__desc">${itemDetails(it)}</p>
+          <div class="cart-item__actions">
+            <button type="button" class="btn btn--link" data-action="edit">Изменить</button>
+            <button type="button" class="btn btn--link" data-action="remove">Удалить</button>
+          </div>
+        </div>
+        <div class="cart-item__right">
+          <div class="stepper" role="group" aria-label="Количество: ${itemTitle(it)}">
+            <button type="button" data-action="dec" aria-label="Уменьшить"${it.quantity <= 1 ? ' disabled' : ''}>−</button>
+            <span>${it.quantity}</span>
+            <button type="button" data-action="inc" aria-label="Увеличить"${it.quantity >= CONFIG.maxQty ? ' disabled' : ''}>+</button>
+          </div>
+          <span class="cart-item__sum">${tenge(it.price * it.quantity)}</span>
+        </div>
+      </li>`).join('');
+
+    $('#cartSubtotal').textContent = tenge(t.subtotal);
+    $('#cartDelivery').textContent = t.subtotal === 0 ? '—' : (t.deliveryFee ? tenge(t.deliveryFee) : 'Бесплатно');
+    $('#cartTotal').textContent = tenge(t.total);
+    const left = Math.max(0, CONFIG.freeDeliveryFrom - t.subtotal);
+    const prog = $('#cartProgress');
+    prog.hidden = t.subtotal === 0;
+    prog.classList.toggle('is-done', left === 0);
+    $('#cartProgressFill').style.width = Math.min(100, t.subtotal / CONFIG.freeDeliveryFrom * 100) + '%';
+    $('#cartProgressText').textContent = left ? `До бесплатной доставки осталось ${tenge(left)}` : 'Ура, доставка бесплатная! 🎉';
+
+    const belowMin = t.subtotal < CONFIG.minOrder;
+    $('#toCheckout').disabled = belowMin;
+    const minText = t.subtotal === 0 ? `Минимальная сумма заказа — ${tenge(CONFIG.minOrder)}`
+      : belowMin ? `Минимальная сумма заказа — ${tenge(CONFIG.minOrder)}. Добавьте ещё на ${tenge(CONFIG.minOrder - t.subtotal)}.` : '';
+    $('#cartMinNote').textContent = minText;
+    renderCheckoutSummary(t, minText);
+  }
+
+  function renderCheckoutSummary(t, minText) {
+    $('#coItems').innerHTML = state.cart.length
+      ? state.cart.map(it => `<li><span>${itemTitle(it)} × ${it.quantity}</span><strong>${tenge(it.price * it.quantity)}</strong></li>`).join('')
+      : '<li><span>Корзина пока пуста</span></li>';
+    $('#coSubtotal').textContent = tenge(t.subtotal);
+    $('#coDelivery').textContent = t.subtotal === 0 ? '—' : (t.deliveryFee ? tenge(t.deliveryFee) : 'Бесплатно');
+    $('#coTotal').textContent = tenge(t.total);
+    $('#coMinNote').textContent = minText;
+    if (!state.submitting) {
+      const btn = $('#submitBtn');
+      btn.disabled = t.subtotal < CONFIG.minOrder;
+      btn.textContent = state.payment === 'online' ? `Оплатить ${tenge(t.total)}` : `Оформить заказ · ${tenge(t.total)}`;
+    }
+  }
+
+  function bindCart() {
+    $('#cartList').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const uid = Number(btn.closest('[data-uid]').dataset.uid);
+      const idx = state.cart.findIndex(x => x.uid === uid);
+      const it = state.cart[idx];
+      if (!it) return;
+      switch (btn.dataset.action) {
+        case 'inc': it.quantity = Math.min(CONFIG.maxQty, it.quantity + 1); break;
+        case 'dec': it.quantity = Math.max(1, it.quantity - 1); break;
+        case 'remove':
+          state.cart.splice(idx, 1);
+          if (state.pizza.editingId === uid) state.pizza = defaultPizza(), updatePizza();
+          if (state.sushi.editingId === uid) state.sushi = defaultSushi(), updateSushi();
+          toast('Позиция удалена из корзины');
+          break;
+        case 'edit':
+          if (it.type === 'pizza') {
+            state.pizza = { size: it.size, dough: it.dough, sauce: it.sauce, ingredients: it.ingredients.map(x => Object.assign({}, x)), qty: it.quantity, editingId: uid };
+            updatePizza(); goTo('#pizza');
+          } else {
+            state.sushi = { rollType: it.rollType, portion: it.portion, fillings: it.fillings.slice(), extras: it.extras.slice(), qty: it.quantity, editingId: uid };
+            updateSushi(); goTo('#sushi');
+          }
+          return;
+      }
+      renderCart();
+      const focusBack = $(`[data-uid="${uid}"] [data-action="${btn.dataset.action}"]`);
+      if (focusBack && !focusBack.disabled) focusBack.focus();
+    });
+    $('#toCheckout').addEventListener('click', () => { goTo('#checkout'); setTimeout(() => $('#fName').focus({ preventScroll: true }), 400); });
+  }
+
+  function goTo(sel) { $(sel).scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+
+  /* =====================================================================
+     ВРЕМЯ ДОСТАВКИ
+     ===================================================================== */
+  const H = CONFIG.hours;
+  const minutesNow = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+  const fmtTime = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+  const asapAvailable = () => { const m = minutesNow(); return m >= H.open && m + CONFIG.leadMinutes <= H.close; };
+  const slotList = () => { const a = []; for (let t = CONFIG.firstSlot; t <= H.close; t += CONFIG.slotStep) a.push(t); return a; };
+  const slotAvailable = (dateKey, t) => dateKey === 'tomorrow' || t >= minutesNow() + CONFIG.leadMinutes;
+  const dateFor = key => { const d = new Date(); if (key === 'tomorrow') d.setDate(d.getDate() + 1); return d; };
+  const isoDate = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const dateLabel = key => `${key === 'today' ? 'Сегодня' : 'Завтра'}, ${dateFor(key).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
+  function asapRange() {
+    const m = minutesNow();
+    const a = Math.ceil((m + CONFIG.asapWindow[0]) / 5) * 5, b = Math.ceil((m + CONFIG.asapWindow[1]) / 5) * 5;
+    return `${fmtTime(a)}–${fmtTime(b)}`;
+  }
+  function pickFirstSlot() {
+    for (const key of ['today', 'tomorrow']) {
+      const t = slotList().find(x => slotAvailable(key, x));
+      if (t !== undefined) { state.delivery.date = key; state.delivery.time = t; return; }
+    }
+  }
+  function initDelivery() {
+    state.delivery = { mode: 'asap', date: 'today', time: null };
+    if (!asapAvailable()) { state.delivery.mode = 'scheduled'; pickFirstSlot(); }
+    renderDelivery();
+  }
+
+  function renderDelivery() {
+    const d = state.delivery, asapOk = asapAvailable();
+    if (!asapOk && d.mode === 'asap') { d.mode = 'scheduled'; pickFirstSlot(); }
+    $('#modeAsap').disabled = !asapOk;
+    syncRadios('deliveryMode', d.mode);
+    $('#asapMeta').textContent = asapOk ? `≈ ${asapRange()}` : 'Сейчас недоступно';
+    $('#closedNote').hidden = asapOk;
+    $('#asapInfo').hidden = d.mode !== 'asap';
+    $('#asapInfo').textContent = `Привезём сегодня примерно к ${asapRange()}. Приготовление и доставка занимают 45–60 минут.`;
+    $('#scheduledPanel').hidden = d.mode !== 'scheduled';
+
+    const todayHas = slotList().some(t => slotAvailable('today', t));
+    if (!todayHas && d.date === 'today') { d.date = 'tomorrow'; }
+    $('#deliveryDates').innerHTML = ['today', 'tomorrow'].map(k =>
+      `<label class="opt"><input type="radio" name="deliveryDate" value="${k}"${d.date === k ? ' checked' : ''}${k === 'today' && !todayHas ? ' disabled' : ''}><span class="opt__body"><span class="opt__title">${dateLabel(k)}</span></span></label>`).join('');
+    if (d.time !== null && !slotAvailable(d.date, d.time)) d.time = null;
+
+    const focused = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.time : undefined;
+    $('#slots').innerHTML = slotList().map(t => {
+      const ok = slotAvailable(d.date, t);
+      return `<button type="button" class="slot" data-time="${t}" aria-pressed="${d.time === t}"${ok ? '' : ' disabled aria-label="' + fmtTime(t) + ' — недоступно"'}>${fmtTime(t)}</button>`;
+    }).join('');
+    if (focused !== undefined) { const b = $(`#slots [data-time="${focused}"]`); if (b && !b.disabled) b.focus(); }
+    if (d.mode === 'asap' || d.time !== null) $('#timeError').textContent = '';
+  }
+
+  function deliveryText(d) {
+    return d.mode === 'asap' ? `Как можно скорее — сегодня ≈ ${d.asapRange}` : `${dateLabel(d.date)}, ${fmtTime(d.time)}`;
+  }
+
+  /* =====================================================================
+     ФОРМА И ОПЛАТА
+     ===================================================================== */
+  function luhn(num) {
+    let sum = 0;
+    for (let i = 0; i < num.length; i++) {
+      let n = Number(num[num.length - 1 - i]);
+      if (i % 2 === 1) { n *= 2; if (n > 9) n -= 9; }
+      sum += n;
+    }
+    return sum % 10 === 0;
+  }
+
+  const validators = {
+    fName: v => { const t = v.trim(); return t.length < 2 || t.length > 50 ? 'Укажите, пожалуйста, имя: от 2 до 50 символов' : ''; },
+    fPhone: v => v.replace(/\D/g, '').length !== 11 ? 'Введите номер полностью: +7 (___) ___-__-__' : '',
+    fStreet: v => !v.trim() ? 'Укажите улицу и номер дома' : '',
+    fComment: v => v.length > 300 ? 'Комментарий — не более 300 символов' : '',
+    fCutlery: v => { if (v === '') return ''; const n = Number(v); return !Number.isInteger(n) || n < 0 || n > 10 ? 'Укажите число от 0 до 10' : ''; },
+    cardNumber: v => {
+      const d = v.replace(/\D/g, '');
+      if (d.length !== 16) return 'Номер карты должен содержать 16 цифр';
+      return luhn(d) ? '' : 'Похоже, в номере карты опечатка — проверьте цифры';
+    },
+    cardExp: v => {
+      const m = v.match(/^(\d{2})\/(\d{2})$/);
+      if (!m) return 'Укажите срок в формате ММ/ГГ';
+      const mm = Number(m[1]), yy = Number(m[2]);
+      if (mm < 1 || mm > 12) return 'Месяц — от 01 до 12';
+      const now = new Date(), cy = now.getFullYear() % 100, cm = now.getMonth() + 1;
+      if (yy < cy || (yy === cy && mm < cm)) return 'Срок действия карты истёк';
+      return '';
+    },
+    cardCvc: v => /^\d{3}$/.test(v) ? '' : 'CVC — 3 цифры на обороте карты',
+    cashFrom: v => {
+      if (!v.trim()) return '';
+      const n = Number(v.replace(/\s/g, ''));
+      const total = totals().total;
+      return !isFinite(n) || n < total ? `Сумма должна быть не меньше суммы заказа — ${tenge(total)}` : '';
+    }
+  };
+
+  function activeFields() {
+    const f = ['fName', 'fPhone', 'fStreet', 'fComment', 'fCutlery'];
+    if (state.payment === 'online') f.push('cardNumber', 'cardExp', 'cardCvc');
+    if (state.payment === 'cash') f.push('cashFrom');
+    return f;
+  }
+  function setError(id, msg) {
+    $('#' + id).setAttribute('aria-invalid', msg ? 'true' : 'false');
+    $('#' + id + '-error').textContent = msg;
+  }
+  function validateField(id) { const msg = validators[id]($('#' + id).value); setError(id, msg); return !msg; }
+
+  function formatPhone(input, isDelete) {
+    let d = input.value.replace(/\D/g, '');
+    if (input.value.trim().startsWith('+7')) d = d.slice(1);
+    else if (/^[78]/.test(d) && d.length === 11) d = d.slice(1);
+    const prev = input.dataset.prev || '';
+    if (isDelete && d === prev) d = d.slice(0, -1);
+    d = d.slice(0, 10);
+    input.dataset.prev = d;
+    if (!d) { input.value = isDelete ? '' : '+7 ('; return; }
+    let out = '+7 (' + d.slice(0, 3);
+    if (d.length >= 3) out += ') ' + d.slice(3, 6);
+    if (d.length >= 6) out += '-' + d.slice(6, 8);
+    if (d.length >= 8) out += '-' + d.slice(8, 10);
+    input.value = out;
+  }
+
+  function bindForm() {
+    const form = $('#orderForm');
+    Object.keys(validators).forEach(id => {
+      const el = $('#' + id);
+      el.addEventListener('blur', () => {
+        if (id === 'fPhone' && el.value.replace(/\D/g, '') === '7') el.value = '';
+        validateField(id);
+      });
+      el.addEventListener('input', () => { if (el.getAttribute('aria-invalid') === 'true') validateField(id); });
+    });
+
+    const phone = $('#fPhone');
+    phone.addEventListener('focus', () => { if (!phone.value) phone.value = '+7 ('; });
+    phone.addEventListener('input', e => {
+      formatPhone(phone, e.inputType && e.inputType.startsWith('delete'));
+      if (phone.getAttribute('aria-invalid') === 'true') validateField('fPhone');
+    });
+
+    $('#fComment').addEventListener('input', e => { $('#fCommentCount').textContent = `${e.target.value.length} / 300`; });
+
+    $('#cardNumber').addEventListener('input', e => {
+      const d = e.target.value.replace(/\D/g, '').slice(0, 16);
+      e.target.value = d.replace(/(\d{4})(?=\d)/g, '$1 ');
+    });
+    $('#cardExp').addEventListener('input', e => {
+      let d = e.target.value.replace(/\D/g, '').slice(0, 4);
+      if (d.length === 1 && Number(d) > 1) d = '0' + d;
+      e.target.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
+    });
+    $('#cardCvc').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3); });
+    $('#cashFrom').addEventListener('input', e => { e.target.value = e.target.value.replace(/[^\d]/g, '').slice(0, 7); });
+
+    $('#slots').addEventListener('click', e => {
+      const b = e.target.closest('.slot');
+      if (!b || b.disabled) return;
+      state.delivery.time = Number(b.dataset.time);
+      renderDelivery();
+    });
+
+    form.addEventListener('submit', onSubmit);
+  }
+
+  function renderPayment() {
+    $('#payOnline').hidden = state.payment !== 'online';
+    $('#payCash').hidden = state.payment !== 'cash';
+    ['cardNumber', 'cardExp', 'cardCvc', 'cashFrom'].forEach(id => { if (!activeFields().includes(id)) setError(id, ''); });
+    renderCart();
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    if (state.submitting) return;
+    renderDelivery();
+    const t = totals();
+    let firstInvalid = null;
+    activeFields().forEach(id => { if (!validateField(id) && !firstInvalid) firstInvalid = $('#' + id); });
+
+    const d = state.delivery;
+    if (d.mode === 'scheduled' && d.time === null) {
+      $('#timeError').textContent = 'Выберите, пожалуйста, удобное время доставки';
+      if (!firstInvalid) firstInvalid = $('#slots .slot:not(:disabled)') || $('#modeScheduled');
+    }
+    if (t.subtotal < CONFIG.minOrder) {
+      $('#formError').textContent = `Минимальная сумма заказа — ${tenge(CONFIG.minOrder)}. Добавьте что-нибудь вкусное в корзину.`;
+      return;
+    }
+    if (firstInvalid) {
+      $('#formError').textContent = 'Пожалуйста, проверьте отмеченные поля — осталось совсем немного.';
+      firstInvalid.focus();
+      return;
+    }
+    $('#formError').textContent = '';
+
+    const btn = $('#submitBtn');
+    state.submitting = true;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner" aria-hidden="true"></span> ${state.payment === 'online' ? 'Проводим оплату…' : 'Оформляем заказ…'}`;
+    await new Promise(r => setTimeout(r, state.payment === 'online' ? 1500 : 600));
+    state.submitting = false;
+
+    // данные карты не попадают в объект заказа и никуда не передаются
+    const order = buildOrder(t);
+    console.log('Заказ (прототип, никуда не отправлен):\n' + JSON.stringify(order, null, 2));
+    showConfirmation(order);
+    renderCart();
+  }
+
+  function buildOrder(t) {
+    const d = state.delivery;
+    const delivery = d.mode === 'asap'
+      ? { mode: 'asap', date: isoDate(new Date()), eta: asapRange() }
+      : { mode: 'scheduled', date: isoDate(dateFor(d.date)), time: fmtTime(d.time) };
+    Object.assign(delivery, {
+      address: $('#fStreet').value.trim(),
+      apartment: $('#fApt').value.trim(),
+      entrance: $('#fEntrance').value.trim(),
+      comment: $('#fComment').value.trim()
+    });
+    const payment = { method: state.payment };
+    if (state.payment === 'online') payment.status = 'paid (demo)';
+    if (state.payment === 'cash' && $('#cashFrom').value) payment.changeFrom = Number($('#cashFrom').value);
+
+    return {
+      orderId: 'PS-' + String(Math.floor(100000 + Math.random() * 900000)),
+      items: state.cart.map(it => it.type === 'pizza'
+        ? { type: 'pizza', size: it.size, dough: it.dough, sauce: it.sauce, ingredients: it.ingredients.map(x => ({ id: x.id, portion: x.portion })), quantity: it.quantity, price: it.price }
+        : { type: 'sushi', rollType: it.rollType, pieces: it.pieces, fillings: it.fillings.slice(), extras: it.extras.slice(), quantity: it.quantity, price: it.price }),
+      delivery,
+      customer: { name: $('#fName').value.trim(), phone: '+7' + $('#fPhone').value.replace(/\D/g, '').slice(1) },
+      payment,
+      cutlery: $('#fCutlery').value === '' ? 1 : Number($('#fCutlery').value),
+      subtotal: t.subtotal,
+      deliveryFee: t.deliveryFee,
+      total: t.total
+    };
+  }
+
+  const PAY_LABELS = { online: 'Онлайн картой — оплачено (демо)', 'courier-card': 'Картой курьеру', cash: 'Наличными курьеру' };
+
+  function showConfirmation(order) {
+    $('#confirmId').textContent = `Заказ № ${order.orderId}`;
+    $('#confirmItems').innerHTML = state.cart.map(it =>
+      `<li><span>${itemTitle(it)} × ${it.quantity}<small>${itemDetails(it)}</small></span><strong>${tenge(it.price * it.quantity)}</strong></li>`).join('');
+    const dl = state.delivery;
+    const addr = [order.delivery.address, order.delivery.apartment && `кв./офис ${order.delivery.apartment}`, order.delivery.entrance].filter(Boolean).join(', ');
+    let pay = PAY_LABELS[order.payment.method];
+    if (order.payment.changeFrom) pay += `, сдача с ${tenge(order.payment.changeFrom)}`;
+    const rows = [
+      ['Товары', tenge(order.subtotal)],
+      ['Доставка', order.deliveryFee ? tenge(order.deliveryFee) : 'Бесплатно'],
+      ['Итого', tenge(order.total)],
+      ['Адрес', addr],
+      ['Время', deliveryText({ mode: dl.mode, date: dl.date, time: dl.time, asapRange: order.delivery.eta })],
+      ['Оплата', pay],
+      ['Получатель', `${order.customer.name}, ${$('#fPhone').value}`]
+    ];
+    if (order.delivery.comment) rows.push(['Комментарий', order.delivery.comment]);
+    const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    $('#confirmDetails').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+
+    const modal = $('#confirmModal');
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    modal.scrollTop = 0;
+    $('#newOrderBtn').focus();
+  }
+
+  function newOrder() {
+    state.cart = [];
+    state.pizza = defaultPizza();
+    state.sushi = defaultSushi();
+    state.payment = 'online';
+    const form = $('#orderForm');
+    form.reset();
+    Object.keys(validators).forEach(id => setError(id, ''));
+    $('#fPhone').dataset.prev = '';
+    $('#fCommentCount').textContent = '0 / 300';
+    $('#formError').textContent = '';
+    $('#confirmModal').classList.remove('is-open');
+    document.body.style.overflow = '';
+    initDelivery();
+    updatePizza();
+    updateSushi();
+    renderPayment();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast('Корзина очищена — можно собирать новый заказ!');
+  }
+
+  /* =====================================================================
+     ОБЩИЕ СОБЫТИЯ
+     ===================================================================== */
+  document.addEventListener('change', e => {
+    const t = e.target;
+    switch (t.name) {
+      case 'pizzaSize':   state.pizza.size = t.value; updatePizza(); break;
+      case 'pizzaDough':  state.pizza.dough = t.value; updatePizza(); break;
+      case 'pizzaSauce':  state.pizza.sauce = t.value; updatePizza(); break;
+      case 'rollType':    state.sushi.rollType = t.value; updateSushi(); break;
+      case 'rollPortion': state.sushi.portion = t.value; updateSushi(); break;
+      case 'rollExtra':
+        state.sushi.extras = S.extras.filter(x => $(`input[name="rollExtra"][value="${x.id}"]`).checked).map(x => x.id);
+        updateSushi(); break;
+      case 'deliveryMode':
+        state.delivery.mode = t.value;
+        if (t.value === 'scheduled' && state.delivery.time === null) pickFirstSlot();
+        renderDelivery(); break;
+      case 'deliveryDate':
+        state.delivery.date = t.value; state.delivery.time = null; renderDelivery(); break;
+      case 'payment':     state.payment = t.value; renderPayment(); break;
+    }
+  });
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-qty]');
+    if (!b) return;
+    const c = state[b.dataset.qty];
+    c.qty = clampQty(c.qty + Number(b.dataset.step));
+    b.dataset.qty === 'pizza' ? updatePizza() : updateSushi();
+  });
+  ['pizza', 'sushi'].forEach(k => {
+    $(`#${k}Qty`).addEventListener('change', e => {
+      state[k].qty = clampQty(e.target.value);
+      k === 'pizza' ? updatePizza() : updateSushi();
+    });
+  });
+
+  $('#newOrderBtn').addEventListener('click', newOrder);
+  $('#confirmModal').addEventListener('keydown', e => {
+    if (e.key === 'Tab') { e.preventDefault(); $('#newOrderBtn').focus(); }
+  });
+
+  /* ---------- Старт ---------- */
+  function renderHero() {
+    const pep = Object.assign({}, P.presets[1].config);
+    $('#heroPizza').innerHTML = pizzaSVG(pep, null);
+    $('#heroSushi').innerHTML = sushiSVG(S.presets[0].config, 'hero');
+  }
+
+  buildPizza();
+  buildSushi();
+  bindCart();
+  bindForm();
+  renderHero();
+  updatePizza();
+  updateSushi();
+  initDelivery();
+  renderPayment();
+  setInterval(renderDelivery, 30000);
+})();
+</script>
+</body>
+</html>
